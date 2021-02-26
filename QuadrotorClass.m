@@ -1,0 +1,70 @@
+
+
+classdef QuadrotorClass
+    
+    properties (Constant)
+        % CONSTANTS
+        g = 9.81;   % The gravitational acceleration [m/s^2]
+        l =  0.2;   % Distance from the center of mass to each rotor [m]
+        m =  0.5;   % Total mass of the quadrotor [kg]
+        I = [1.24, 1.24, 2.48]; % Mass moment of inertia [kg m^2]
+        mu = 3.0;   % Maximum thrust of each rotor [N]
+        sigma = 0.01; % The proportionality constant relating thrust to torque [m]
+    end
+    
+    properties (SetAccess = private)
+        p;
+    end
+    
+    properties
+        % Member Variables
+        z0;% initial conditions
+        r;
+        n;
+        u;
+    end
+    
+    methods
+        % Constructor
+        function obj = QuadrotorClass(initialConditions, extForces, moment, input)
+            obj.z0 = initialConditions; % 12x1 vertical vector 
+            obj.r = extForces;  % 3x1 vertical vector
+            obj.n = moment; % 3x1 vertical vector
+            obj.u = input;  % 4x1 vertical vector
+            
+            obj.p = [obj.g obj.l obj.m obj.I obj.mu obj.sigma]; % parametric vector
+        end
+        
+        % Graph of x, xdot, alpha, and omega
+        function plotResults(this, t, z)
+            for i=1:4
+                ax(i) = subplot(2,2,i,'NextPlot','Add','Box','on','XGrid','on','YGrid','on',...
+                            'Xlim',[t(1), t(end)],...
+                            'TickLabelInterpreter','LaTeX','FontSize',14);
+                xlabel('t','Interpreter','LaTeX','FontSize',14);        
+            end
+
+            plot(ax(1), t, z(:,1:3), 'LineWidth', 1.5);
+            legend(ax(1), {'$x_1$', '$x_2$', '$x_3$'},... 
+                'Interpreter', 'LaTeX', 'FontSize', 14);
+            title(ax(1), '${\bf x}$','Interpreter','LaTeX','FontSize',14);
+            xlabel(ax(1), 't','Interpreter','LaTeX','FontSize',14);
+
+            plot(ax(3), t, z(:,4:6), 'LineWidth', 1.5);
+            legend(ax(3), {'$\phi$', '$\theta$', '$\psi$'},...
+                'Interpreter', 'LaTeX', 'FontSize', 14);
+            title(ax(3), '\boldmath$\alpha$','Interpreter','LaTeX','FontSize',14);
+
+            plot(ax(2), t, z(:,7:9), 'LineWidth', 1.5);
+            legend(ax(2), {'$\dot{x}_1$', '$\dot{x}_2$', '$\dot{x}_3$'},...
+                'Interpreter', 'LaTeX', 'FontSize', 14);
+            title(ax(2), '$\dot{\bf x}$','Interpreter','LaTeX','FontSize',14);
+
+            plot(ax(4), t, z(:,10:12), 'LineWidth', 1.5);
+            legend(ax(4), {'$\omega_1$', '$\omega_2$', '$\omega_3$'},...
+                'Interpreter', 'LaTeX', 'FontSize', 14);
+            title(ax(4), '\boldmath$\omega$','Interpreter','LaTeX','FontSize',14);
+        end
+    end
+    
+end
