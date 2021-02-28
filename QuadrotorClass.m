@@ -65,6 +65,23 @@ classdef QuadrotorClass
                 'Interpreter', 'LaTeX', 'FontSize', 14);
             title(ax(4), '\boldmath$\omega$','Interpreter','LaTeX','FontSize',14);
         end
+        
+%         function pos = silhouettePositions(z)
+%             
+%         end
+                
+        function rotorPos, bodyPos = quadrotorPositions(z,N,loc)
+            for i=1:4
+
+                ctr(i,:) = z(1:3) + loc(i,:)*R';
+                rotorPos(i) = ones(N,1)*z(1:3) + (ones(N,1)*loc(i,:) + circle)*R'; 
+
+            end
+            bodyPos = [ctr([1 3],1), NaN, ctr([2 4],1);
+                       ctr([1 3],2), NaN, ctr([2 4],2);
+                       ctr([1 3],3), NaN, ctr([2 4],3)]
+        end
+            
     end
     
 end
