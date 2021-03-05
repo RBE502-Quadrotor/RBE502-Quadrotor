@@ -81,6 +81,12 @@ classdef QuadrotorClass
                        ctr([1 3],2), NaN, ctr([2 4],2);
                        ctr([1 3],3), NaN, ctr([2 4],3)]
         end
+        
+        function R = quadrotorRotation(this, a1, a2, a3)
+            R = [ cos(a2)*cos(a3), sin(a1)*sin(a2)*cos(a3) - cos(a1)*sin(a3), sin(a1)*sin(a3) + cos(a1)*sin(a2)*cos(a3);
+                  cos(a2)*sin(a3), cos(a1)*cos(a3) + sin(a1)*sin(a2)*sin(a3), cos(a1)*sin(a2)*sin(a3) - sin(a1)*cos(a3);
+                  -sin(a2),        sin(a1)*cos(a2),                           cos(a1)*cos(a2)];
+        end
             
     end
     
