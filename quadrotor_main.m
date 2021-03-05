@@ -14,6 +14,7 @@ n = [0; 0; 0];  % Moment Vector
 u = [1; 0.9; 1.9; 1.5]; % rotor/motor inputs (?)
 
 qr = QuadrotorClass(z0, r, n, u);
+intruder = QuadrotorClass(z0, r, n, u);
 
 t = linspace(0, 3, 200);
 
@@ -63,20 +64,16 @@ for i=1:4
 end
 
 % Fake state matrix for enemy quadcopter
-e_z = [ones(length(t),3), zeros(length(t),3)]
+intruder_z = [ones(length(t),3), zeros(length(t),3)];
 
 tic;
 for k=1:length(t)
     % Rotation matrix for quadcopter
-    R = [ cos(z(k,5))*cos(z(k,6)), sin(z(k,4))*sin(z(k,5))*cos(z(k,6)) - cos(z(k,4))*sin(z(k,6)), sin(z(k,4))*sin(z(k,6)) + cos(z(k,4))*sin(z(k,5))*cos(z(k,6));
-          cos(z(k,5))*sin(z(k,6)), cos(z(k,4))*cos(z(k,6)) + sin(z(k,4))*sin(z(k,5))*sin(z(k,6)), cos(z(k,4))*sin(z(k,5))*sin(z(k,6)) - sin(z(k,4))*cos(z(k,6));
-                     -sin(z(k,5)),                                 sin(z(k,4))*cos(z(k,5)),                                 cos(z(k,4))*cos(z(k,5))];
+    R = qr.quadrotorRotation(z(k,4), z(k,5), z(k,6));
     
     % Enemy Rotation Matrix
-    enemy_R = [ cos(e_z(k,5))*cos(e_z(k,6)), sin(e_z(k,4))*sin(e_z(k,5))*cos(e_z(k,6)) - cos(e_z(k,4))*sin(e_z(k,6)), sin(e_z(k,4))*sin(e_z(k,6)) + cos(e_z(k,4))*sin(e_z(k,5))*cos(e_z(k,6));
-          cos(e_z(k,5))*sin(e_z(k,6)), cos(e_z(k,4))*cos(e_z(k,6)) + sin(e_z(k,4))*sin(e_z(k,5))*sin(e_z(k,6)), cos(e_z(k,4))*sin(e_z(k,5))*sin(e_z(k,6)) - sin(e_z(k,4))*cos(e_z(k,6));
-                     -sin(e_z(k,5)),                                 sin(e_z(k,4))*cos(e_z(k,5)),                                 cos(e_z(k,4))*cos(e_z(k,5))];
-    
+    intruder_R = intruder.quadrotorRotation(intruder_z(k,4), intruder_z(k,5), intruder_z(k,6));
+
     % Update pose of each of the 4 rotors
     for i=1:4
         % Update pose for quadrotor motors
@@ -85,8 +82,8 @@ for k=1:length(t)
         set(rotor(i), 'XData', pose(:,1), 'YData', pose(:,2),  'ZData', pose(:,3) );
         
         % Update pose for enemy quadrotor
-        enemyCtr(i,:) = e_z(k,1:3) + loc(i,:)*enemy_R';
-        enemyPose = ones(N,1)*e_z(k,1:3) + (ones(N,1)*loc(i,:) + circle)*enemy_R';
+        enemyCtr(i,:) = intruder_z(k,1:3) + loc(i,:)*intruder_R';
+        enemyPose = ones(N,1)*intruder_z(k,1:3) + (ones(N,1)*loc(i,:) + circle)*intruder_R';
         set(enemyRotor(i), 'XData', enemyPose(:,1), 'YData', enemyPose(:,2),  'ZData', enemyPose(:,3) );
     end
     % Animate silhouette of X-Y-Z position for quadrotor
