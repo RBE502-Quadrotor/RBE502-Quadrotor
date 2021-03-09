@@ -17,7 +17,6 @@ p = [g l m I mu sigma];
 % Initial conditions
 z0 = zeros(12,1);
 
-
 r = [0; 0; 0];
 n = [0; 0; 0];
 u = [2; 3; 2; 0];
