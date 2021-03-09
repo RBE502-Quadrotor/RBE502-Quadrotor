@@ -7,6 +7,7 @@ addpath(".\RBE502-Quadrotor\", ".\RBE502-Quadrotor\templates\");
 
 % initial conditions (State Vector)
 z0 = zeros(12,1);   % z is the state vector (?)
+zd = [5;5;5; 0;0;0; 0;0;0; 0;0;0]; % Desired position and state
 
 r = [0; 0; 0];  % External Forces
 n = [0; 0; 0];  % Moment Vector
@@ -16,9 +17,67 @@ u = [1; 0.9; 1.9; 1.5]; % rotor/motor inputs (?)
 qr = QuadrotorClass(z0, r, n, u);
 intruder = QuadrotorClass(z0, r, n, u);
 
+% Quadrotor constants
+m = qr.m;
+g = qr.g;
+I = qr.I;
+mu = qr.mu;
+sigma = qr.sigma;
+l = qr.l;
+
+%System Dynamics 
+A =[0, 0, 0,  0, 0, 0, 1, 0, 0, 0, 0, 0;
+    0, 0, 0,  0, 0, 0, 0, 1, 0, 0, 0, 0;
+    0, 0, 0,  0, 0, 0, 0, 0, 1, 0, 0, 0;
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0;
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 1, 0;
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 1;
+    0, 0, 0,  0, g, 0, 0, 0, 0, 0, 0, 0;
+    0, 0, 0, -g, 0, 0, 0, 0, 0, 0, 0, 0;
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0;
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0;
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0;
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+B = [0, 0, 0, 0; 
+    0, 0, 0, 0; 
+    0, 0, 0, 0; 
+    0, 0, 0, 0; 
+    0, 0, 0, 0;  
+    0, 0, 0, 0; 
+    0, 0, 0, 0; 
+    0, 0, 0, 0;
+    1/m, 1/m, 1/m, 1/m;    
+    0, l/I(1), 0, -l/I(1); 
+    -l/I(2), 0, l/I(2), 0;
+    sigma/I(3), -sigma/I(3), sigma/I(3), -sigma/I(3)];
+
+C = [ 1 0 0 0 0 0 0 0 0 0 0 0; 
+      0 1 0 0 0 0 0 0 0 0 0 0;
+      0 0 1 0 0 0 0 0 0 0 0 0;
+      0 0 0 0 0 0 1 0 0 0 0 0;
+      0 0 0 0 0 0 0 1 0 0 0 0;
+      0 0 0 0 0 0 0 0 1 0 0 0];
+
+D = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0;];
+
+dimA = size(A);
+dimU = size(u);
+
+Q = eye(dimA)*5;
+R = eye(4);
+
+K = lqr(A,B,Q,R);
+
+% closed loop system 
+
+sys = ss((A -B*K), B, C, D);
+
+u=@(z)-K*(z - zd);
+
 t = linspace(0, 3, 200);
 
-[t, z] = ode45(@(t,z) quadrotor(t,z,qr.u,qr.p,qr.r,qr.n), t, z0);
+[t, z] = ode45(@(t,z) quadrotor(t,z,u(z),qr.p,qr.r,qr.n), t, z0);
 
 qr.plotResults(t, z);
 %% Animation
@@ -67,7 +126,9 @@ end
 intruder_z = [ones(length(t),3), zeros(length(t),3)];
 
 tic;
+
 for k=1:length(t)
+
     % Rotation matrix for quadcopter
     R = qr.quadrotorRotation(z(k,4), z(k,5), z(k,6));
     
