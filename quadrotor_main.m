@@ -1,4 +1,4 @@
-clear all; clc; close all;
+clear all; clc;% close all;
 
 % change current folder to wherever your git repos are;
 % this will include the templates folder, with the code the professor
@@ -28,18 +28,23 @@ sigma = qr.sigma;
 l = qr.l;
 
 %System Dynamics 
-A =[0, 0, 0,  0, 0, 0, 1, 0, 0, 0, 0, 0;
-    0, 0, 0,  0, 0, 0, 0, 1, 0, 0, 0, 0;
-    0, 0, 0,  0, 0, 0, 0, 0, 1, 0, 0, 0;
-    0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0;
-    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 1, 0;
-    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 1;
-    0, 0, 0,  0, g, 0, 0, 0, 0, 0, 0, 0;
-    0, 0, 0, -g, 0, 0, 0, 0, 0, 0, 0, 0;
-    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0;
-    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0;
-    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0;
-    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0];
+A = zeros(12);
+A(1:6,7:end) = eye(6);
+A(7,5) = g;
+A(8,4) = -g;
+
+% A =[0, 0, 0,  0, 0, 0, 1, 0, 0, 0, 0, 0;
+%     0, 0, 0,  0, 0, 0, 0, 1, 0, 0, 0, 0;
+%     0, 0, 0,  0, 0, 0, 0, 0, 1, 0, 0, 0;
+%     0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0;
+%     0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 1, 0;
+%     0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 1;
+%     0, 0, 0,  0, g, 0, 0, 0, 0, 0, 0, 0;
+%     0, 0, 0, -g, 0, 0, 0, 0, 0, 0, 0, 0;
+%     0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0;
+%     0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0;
+%     0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0;
+%     0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 B = [0, 0, 0, 0; 
     0, 0, 0, 0; 
@@ -54,20 +59,20 @@ B = [0, 0, 0, 0;
     -l/I(2), 0, l/I(2), 0;
     sigma/I(3), -sigma/I(3), sigma/I(3), -sigma/I(3)];
 
-C = [ 1 0 0 0 0 0 0 0 0 0 0 0; 
-      0 1 0 0 0 0 0 0 0 0 0 0;
-      0 0 1 0 0 0 0 0 0 0 0 0;
-      0 0 0 0 0 0 1 0 0 0 0 0;
-      0 0 0 0 0 0 0 1 0 0 0 0;
-      0 0 0 0 0 0 0 0 1 0 0 0];
+% C = [ 1 0 0 0 0 0 0 0 0 0 0 0; 
+%       0 1 0 0 0 0 0 0 0 0 0 0;
+%       0 0 1 0 0 0 0 0 0 0 0 0;
+%       0 0 0 0 0 0 1 0 0 0 0 0;
+%       0 0 0 0 0 0 0 1 0 0 0 0;
+%       0 0 0 0 0 0 0 0 1 0 0 0];
 
-D = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0;];
+% D = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0;];
 
-dimA = size(A);
-dimU = size(u);
+% dimA = size(A);
+% dimU = size(u);
 
 % tuning performance cost (judged by state vector; affected by state error?)
-Q = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
+QQ = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 1 0 0 0 0 0 0 0 0 0 0;    % y error
     0 0 1 0 0 0 0 0 0 0 0 0;    % z error
     0 0 0 1 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
@@ -81,23 +86,31 @@ Q = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 0 0 0 0 0 0 0 0 0 0 2];   % rate of rotation (theta 3) error
 
 
+Q = eye(12);
+R = 10*eye(4);
+
 % tuning actuator cost (judged by input gains; affects acceleration allowed or energy expended for maneuver)
-R = [1 0 0 0;       % x dot
-    0 1 0 0;        % alpha dot
-    0 0 1 0;        % v dot
-    0 0 0 1];       % omega dot
+% R = [1 0 0 0;       % x dot
+%     0 1 0 0;        % alpha dot
+%     0 0 1 0;        % v dot
+%     0 0 0 1];       % omega dot
 
 K = lqr(A,B,Q,R);
 
 % closed loop system 
 
-sys = ss((A -B*K), B, C, D);
+%sys = ss((A -B*K), B, C, D);
 
-u=@(z)-K*(z - zd);
+u0  = ones(4,1)*m*g/4;
 
-t = linspace(0, 3, 200);
+u=@(z) K*(zd - z) + u0;
 
-[t, z] = ode45(@(t,z) quadrotor(t,z,u(z),qr.p,qr.r,qr.n), t, z0);
+t = linspace(0, 10, 200);
+
+p = qr.p;
+% [t, z] = ode45(@(t,z) quadrotor(t,z,u,qr.p,qr.r,qr.n), t, z0);
+[t, z] = ode45(@(t,z) quadrotor(t,z,u,p,[0;0;0],[0;0;0]), t, z0);
+
 
 qr.plotResults(t, z);
 %% Animation
@@ -117,8 +130,8 @@ animation_axes = axes('Parent', animation_fig,...
 view(animation_axes, 3);
 
 N = 10;
-Q = linspace(0,2*pi,N)';
-circle = 0.3*qr.l*[cos(Q) sin(Q) zeros(N,1)];
+QQ = linspace(0,2*pi,N)';
+circle = 0.3*qr.l*[cos(QQ) sin(QQ) zeros(N,1)];
 loc = qr.l*[1 0 0; 0 1 0; -1 0 0; 0 -1 0];
 
 
@@ -143,7 +156,7 @@ for i=1:4
 end
 
 % Fake state matrix for enemy quadcopter
-intruder_z = [ones(length(t),3), zeros(length(t),3)];
+intruder_z = [ones(length(t),3)*5, zeros(length(t),3)];
 
 tic;
 
