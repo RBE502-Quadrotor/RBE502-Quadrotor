@@ -1,21 +1,23 @@
-clear, clc;
+clear all; clc; close all;
 
 % change current folder to wherever your git repos are;
 % this will include the templates folder, with the code the professor
 % provided us
-addpath(".\RBE502-Quadrotor\", ".\RBE502-Quadrotor\templates\");
+addpath(".\templates\");
 
 % initial conditions (State Vector)
 z0 = zeros(12,1);   % z is the state vector (?)
-zd = [5;5;5; 0;0;0; 0;0;0; 0;0;0]; % Desired position and state
+zd = [5;5;5; 0;0;0; 0;0;0; 0;0;0]; % Desired position and state (aka xd)
 
 r = [0; 0; 0];  % External Forces
 n = [0; 0; 0];  % Moment Vector
-%u = [1; 0.9; 1.9; 1.5];
 u = [1; 0.9; 1.9; 1.5]; % rotor/motor inputs (?)
 
 qr = QuadrotorClass(z0, r, n, u);
-intruder = QuadrotorClass(z0, r, n, u);
+
+% intruder parameters
+u_intruder = [1; 0.9; 1.9; 1.5];
+intruder = QuadrotorClass(z0, zeros(3,1), zeros(3,1), u_intruder);
 
 % Quadrotor constants
 m = qr.m;
@@ -64,8 +66,26 @@ D = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0;];
 dimA = size(A);
 dimU = size(u);
 
-Q = eye(dimA)*5;
-R = eye(4);
+% tuning performance cost (judged by state vector; affected by state error?)
+Q = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
+    0 1 0 0 0 0 0 0 0 0 0 0;    % y error
+    0 0 1 0 0 0 0 0 0 0 0 0;    % z error
+    0 0 0 1 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
+    0 0 0 0 1 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
+    0 0 0 0 0 1 0 0 0 0 0 0;    % angular rotation (theta 3) error
+    0 0 0 0 0 0 2 0 0 0 0 0;    % rate of translation (x) error
+    0 0 0 0 0 0 0 2 0 0 0 0;    % rate of translation (y) error
+    0 0 0 0 0 0 0 0 2 0 0 0;    % rate of translation (z) error
+    0 0 0 0 0 0 0 0 0 2 0 0;    % rate of rotation (theta 1) error
+    0 0 0 0 0 0 0 0 0 0 2 0;    % rate of rotation (theta 2) error
+    0 0 0 0 0 0 0 0 0 0 0 2];   % rate of rotation (theta 3) error
+
+
+% tuning actuator cost (judged by input gains; affects acceleration allowed or energy expended for maneuver)
+R = [1 0 0 0;       % x dot
+    0 1 0 0;        % alpha dot
+    0 0 1 0;        % v dot
+    0 0 0 1];       % omega dot
 
 K = lqr(A,B,Q,R);
 
