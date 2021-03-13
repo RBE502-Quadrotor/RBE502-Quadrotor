@@ -11,21 +11,21 @@ zd = [5;5;5; 0;0;0; 0;0;0; 0;0;0]; % Desired position and state (aka xd)
 
 r = [0; 0; 0];  % External Forces
 n = [0; 0; 0];  % Moment Vector
-u = [1; 0.9; 1.9; 1.5]; % rotor/motor inputs (?)
+u0 = [1; 0.9; 1.9; 1.5]; % rotor/motor inputs (?)
 
-qr = QuadrotorClass(z0, r, n, u);
+qr = QuadrotorClass(z0, r, n, u0);
 
 % intruder parameters
 u_intruder = [1; 0.9; 1.9; 1.5];
 intruder = QuadrotorClass(z0, zeros(3,1), zeros(3,1), u_intruder);
 
 % Quadrotor constants
-m = qr.m;
-g = qr.g;
-I = qr.I;
-mu = qr.mu;
-sigma = qr.sigma;
-l = qr.l;
+% m = qr.m;
+% g = qr.g;
+% I = qr.I;
+% mu = qr.mu;
+% sigma = qr.sigma;
+% l = qr.l;
 
 %System Dynamics 
 % A = zeros(12);
@@ -33,31 +33,31 @@ l = qr.l;
 % A(7,5) = g;
 % A(8,4) = -g;
 
-A =[0, 0, 0,  0, 0, 0, 1, 0, 0, 0, 0, 0;
-    0, 0, 0,  0, 0, 0, 0, 1, 0, 0, 0, 0;
-    0, 0, 0,  0, 0, 0, 0, 0, 1, 0, 0, 0;
-    0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0;
-    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 1, 0;
-    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 1;
-    0, 0, 0,  0, g, 0, 0, 0, 0, 0, 0, 0;
-    0, 0, 0, -g, 0, 0, 0, 0, 0, 0, 0, 0;
-    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0;
-    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0;
-    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0;
-    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0];
+A =[0, 0, 0,  0,    0,    0, 1, 0, 0, 0, 0, 0;
+    0, 0, 0,  0,    0,    0, 0, 1, 0, 0, 0, 0;
+    0, 0, 0,  0,    0,    0, 0, 0, 1, 0, 0, 0;
+    0, 0, 0,  0,    0,    0, 0, 0, 0, 1, 0, 0;
+    0, 0, 0,  0,    0,    0, 0, 0, 0, 0, 1, 0;
+    0, 0, 0,  0,    0,    0, 0, 0, 0, 0, 0, 1;
+    0, 0, 0,  0,    qr.g, 0, 0, 0, 0, 0, 0, 0;
+    0, 0, 0, -qr.g, 0,    0, 0, 0, 0, 0, 0, 0;
+    0, 0, 0,  0,    0,    0, 0, 0, 0, 0, 0, 0;
+    0, 0, 0,  0,    0,    0, 0, 0, 0, 0, 0, 0;
+    0, 0, 0,  0,    0,    0, 0, 0, 0, 0, 0, 0;
+    0, 0, 0,  0,    0,    0, 0, 0, 0, 0, 0, 0];
 
-B = [0, 0, 0, 0; 
-    0, 0, 0, 0; 
-    0, 0, 0, 0; 
-    0, 0, 0, 0; 
-    0, 0, 0, 0;  
-    0, 0, 0, 0; 
-    0, 0, 0, 0; 
-    0, 0, 0, 0;
-    1/m, 1/m, 1/m, 1/m;    
-    0, l/I(1), 0, -l/I(1); 
-    -l/I(2), 0, l/I(2), 0;
-    sigma/I(3), -sigma/I(3), sigma/I(3), -sigma/I(3)];
+B = [0,                0,                 0,                0; 
+     0,                0,                 0,                0; 
+     0,                0,                 0,                0; 
+     0,                0,                 0,                0; 
+     0,                0,                 0,                0;  
+     0,                0,                 0,                0; 
+     0,                0,                 0,                0; 
+     0,                0,                 0,                0;
+     1/qr.m,           1/qr.m,            1/qr.m,           1/qr.m;    
+     0,                qr.l/qr.I(1),      0,                -qr.l/qr.I(1); 
+     -qr.l/qr.I(2),    0,                 qr.l/qr.I(2),     0;
+     qr.sigma/qr.I(3), -qr.sigma/qr.I(3), qr.sigma/qr.I(3), -qr.sigma/qr.I(3)];
 
 % C = [ 1 0 0 0 0 0 0 0 0 0 0 0; 
 %       0 1 0 0 0 0 0 0 0 0 0 0;
@@ -98,15 +98,15 @@ K = lqr(A,B,Q,R);
 
 %sys = ss((A -B*K), B, C, D);
 
-u0  = ones(4,1)*m*g/4;
+u0  = ones(4,1)*qr.m*qr.g/4;
 
 u=@(z) K*(zd - z) + u0;
 
 t = linspace(0, 10, 200);
 
 p = qr.p;
-% [t, z] = ode45(@(t,z) quadrotor(t,z,u,qr.p,qr.r,qr.n), t, z0);
-[t, z] = ode45(@(t,z) quadrotor(t,z,u,p,[0;0;0],[0;0;0]), t, z0);
+[t, z] = ode45(@(t,z) quadrotor(t,z,u,qr.p,qr.r,qr.n), t, z0);
+% [t, z] = ode45(@(t,z) quadrotor(t,z,u,p,[0;0;0],[0;0;0]), t, z0);
 
 
 qr.plotResults(t, z);
@@ -139,20 +139,20 @@ silhouette = plot3(0,0,0, '--', 'Color', 0.5*[1 1 1], 'LineWidth', 1 ,...
 body = plot3(0,0,0, 'Color',lines(1), 'LineWidth', 2,...
         'Parent', animation_axes);
 
-% Define enemy color and enemy body
-enemyColor = lines(2);
-enemyColor = enemyColor(2,:);
-enemyBody = plot3(2,2,2, 'Color',enemyColor, 'LineWidth', 2,...
+% Define intruder color and intruder body
+intruder_Color = lines(2);
+intruder_Color = intruder_Color(2,:);
+intruder_Body = plot3(2,2,2, 'Color',intruder_Color, 'LineWidth', 2,...
         'Parent', animation_axes);
 
 for i=1:4
     rotor(i) = plot3(0,0,0, 'Color', lines(1), 'LineWidth', 2,...
         'Parent', animation_axes);
-    enemyRotor(i) = plot3(0,0,0, 'Color', enemyColor, 'LineWidth', 2,...
+    intruder_Rotor(i) = plot3(0,0,0, 'Color', intruder_Color, 'LineWidth', 2,...
         'Parent', animation_axes);
 end
 
-% Fake state matrix for enemy quadcopter
+% Fake state matrix for intruder quadcopter
 intruder_z = [ones(length(t),3)*5, zeros(length(t),3)];
 
 tic;
@@ -172,10 +172,10 @@ for k=1:length(t)
         pose = ones(N,1)*z(k,1:3) + (ones(N,1)*loc(i,:) + circle)*R';
         set(rotor(i), 'XData', pose(:,1), 'YData', pose(:,2),  'ZData', pose(:,3) );
         
-        % Update pose for enemy quadrotor
-        enemyCtr(i,:) = intruder_z(k,1:3) + loc(i,:)*intruder_R';
-        enemyPose = ones(N,1)*intruder_z(k,1:3) + (ones(N,1)*loc(i,:) + circle)*intruder_R';
-        set(enemyRotor(i), 'XData', enemyPose(:,1), 'YData', enemyPose(:,2),  'ZData', enemyPose(:,3) );
+        % Update pose for intruder quadrotor
+        intruder_Ctr(i,:) = intruder_z(k,1:3) + loc(i,:)*intruder_R';
+        intruder_Pose = ones(N,1)*intruder_z(k,1:3) + (ones(N,1)*loc(i,:) + circle)*intruder_R';
+        set(intruder_Rotor(i), 'XData', intruder_Pose(:,1), 'YData', intruder_Pose(:,2),  'ZData', intruder_Pose(:,3) );
     end
     % Animate silhouette of X-Y-Z position for quadrotor
     set(silhouette,'XData', [0, z(k,1), z(k,1), z(k,1)],...
@@ -188,9 +188,9 @@ for k=1:length(t)
         'ZData', [ctr([1 3],3); NaN; ctr([2 4],3)] );
     
     % Animate Enemy
-    set(enemyBody, 'XData', [enemyCtr([1 3],1); NaN; enemyCtr([2 4],1)], ...
-        'YData', [enemyCtr([1 3],2); NaN; enemyCtr([2 4],2)],...
-        'ZData', [enemyCtr([1 3],3); NaN; enemyCtr([2 4],3)] );
+    set(intruder_Body, 'XData', [intruder_Ctr([1 3],1); NaN; intruder_Ctr([2 4],1)], ...
+        'YData', [intruder_Ctr([1 3],2); NaN; intruder_Ctr([2 4],2)],...
+        'ZData', [intruder_Ctr([1 3],3); NaN; intruder_Ctr([2 4],3)] );
     pause(t(k)-toc);
     pause(0.01);
 end
