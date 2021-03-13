@@ -1,4 +1,4 @@
-clear all; clc;% close all;
+clear all; clc; close all;
 
 % change current folder to wherever your git repos are;
 % this will include the templates folder, with the code the professor
@@ -28,23 +28,23 @@ sigma = qr.sigma;
 l = qr.l;
 
 %System Dynamics 
-A = zeros(12);
-A(1:6,7:end) = eye(6);
-A(7,5) = g;
-A(8,4) = -g;
+% A = zeros(12);
+% A(1:6,7:end) = eye(6);
+% A(7,5) = g;
+% A(8,4) = -g;
 
-% A =[0, 0, 0,  0, 0, 0, 1, 0, 0, 0, 0, 0;
-%     0, 0, 0,  0, 0, 0, 0, 1, 0, 0, 0, 0;
-%     0, 0, 0,  0, 0, 0, 0, 0, 1, 0, 0, 0;
-%     0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0;
-%     0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 1, 0;
-%     0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 1;
-%     0, 0, 0,  0, g, 0, 0, 0, 0, 0, 0, 0;
-%     0, 0, 0, -g, 0, 0, 0, 0, 0, 0, 0, 0;
-%     0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0;
-%     0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0;
-%     0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0;
-%     0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0];
+A =[0, 0, 0,  0, 0, 0, 1, 0, 0, 0, 0, 0;
+    0, 0, 0,  0, 0, 0, 0, 1, 0, 0, 0, 0;
+    0, 0, 0,  0, 0, 0, 0, 0, 1, 0, 0, 0;
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0;
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 1, 0;
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 1;
+    0, 0, 0,  0, g, 0, 0, 0, 0, 0, 0, 0;
+    0, 0, 0, -g, 0, 0, 0, 0, 0, 0, 0, 0;
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0;
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0;
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0;
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 B = [0, 0, 0, 0; 
     0, 0, 0, 0; 
@@ -68,11 +68,8 @@ B = [0, 0, 0, 0;
 
 % D = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0;];
 
-% dimA = size(A);
-% dimU = size(u);
-
 % tuning performance cost (judged by state vector; affected by state error?)
-QQ = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
+Q = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 1 0 0 0 0 0 0 0 0 0 0;    % y error
     0 0 1 0 0 0 0 0 0 0 0 0;    % z error
     0 0 0 1 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
@@ -86,14 +83,14 @@ QQ = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 0 0 0 0 0 0 0 0 0 0 2];   % rate of rotation (theta 3) error
 
 
-Q = eye(12);
-R = 10*eye(4);
+% Q = eye(12);
+% R = 10*eye(4);
 
 % tuning actuator cost (judged by input gains; affects acceleration allowed or energy expended for maneuver)
-% R = [1 0 0 0;       % x dot
-%     0 1 0 0;        % alpha dot
-%     0 0 1 0;        % v dot
-%     0 0 0 1];       % omega dot
+R = [1 0 0 0;       % x dot
+    0 1 0 0;        % alpha dot
+    0 0 1 0;        % v dot
+    0 0 0 1];       % omega dot
 
 K = lqr(A,B,Q,R);
 
