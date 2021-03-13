@@ -23,9 +23,9 @@ intruder = QuadrotorClass(z0, zeros(3,1), zeros(3,1), u_intruder);
 % m = qr.m;
 % g = qr.g;
 % I = qr.I;
-mu = qr.mu;
-sigma = qr.sigma;
-l = qr.l;
+% mu = qr.mu;
+% sigma = qr.sigma;
+% l = qr.l;
 
 %System Dynamics 
 % A = zeros(12);
@@ -55,8 +55,8 @@ B = [0,                0,                 0,                0;
      0,                0,                 0,                0; 
      0,                0,                 0,                0;
      1/qr.m,           1/qr.m,            1/qr.m,           1/qr.m;    
-     0,                l/qr.I(1),         0,                -l/qr.I(1); 
-     -l/qr.I(2),       0,                 l/qr.I(2),        0;
+     0,                qr.l/qr.I(1),      0,                -qr.l/qr.I(1); 
+     -qr.l/qr.I(2),    0,                 qr.l/qr.I(2),     0;
      qr.sigma/qr.I(3), -qr.sigma/qr.I(3), qr.sigma/qr.I(3), -qr.sigma/qr.I(3)];
 
 % C = [ 1 0 0 0 0 0 0 0 0 0 0 0; 
