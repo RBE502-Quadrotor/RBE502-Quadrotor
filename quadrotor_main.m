@@ -102,14 +102,28 @@ u0  = ones(4,1)*qr.m*qr.g/4;
 
 u=@(z) K*(zd - z) + u0;
 
-t = linspace(0, 10, 200);
+t = linspace(0, 20, 200);
 
 p = qr.p;
 [t, z] = ode45(@(t,z) quadrotor(t,z,u,qr.p,qr.r,qr.n), t, z0);
 % [t, z] = ode45(@(t,z) quadrotor(t,z,u,p,[0;0;0],[0;0;0]), t, z0);
 
+% State values for landing back at nest
+z_nest = [0;0;0; 0;0;0; 0;0;0; 0;0;0]; % position and state for nest
+
+u2=@(z) K*(z_nest - z) + u0;
+
+[t2, z2] = ode45(@(t,z) quadrotor(t,z,u2,qr.p,qr.r,qr.n), t, z(end,:));
+
+
 
 qr.plotResults(t, z);
+figure
+% Plot state for landing
+qr.plotResults(t2, z2);
+
+t = [t;t2]
+z = [z;z2]
 %% Animation
 
 animation_fig = figure;
