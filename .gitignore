@@ -1,2 +1,2 @@
-# Convert all files to use "lf" line endings
-* text
+# Ignore the following
+*.asv
