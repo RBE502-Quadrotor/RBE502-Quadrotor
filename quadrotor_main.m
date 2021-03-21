@@ -102,11 +102,10 @@ u0  = ones(4,1)*qr.m*qr.g/4;
 
 u=@(z) K*(zd - z) + u0;
 
-t = linspace(0, 20, 200);
+t = linspace(0, 5, 200);
 
 p = qr.p;
-[t, z] = ode45(@(t,z) quadrotor(t,z,u,qr.p,qr.r,qr.n), t, z0);
-% [t, z] = ode45(@(t,z) quadrotor(t,z,u,p,[0;0;0],[0;0;0]), t, z0);
+[t, z] = ode45(@(t,z) quadrotor(t,z,u,qr.p,qr.r,qr.n), t, z0);  % [t, z] = ode45(@(t,z) quadrotor(t,z,u,p,[0;0;0],[0;0;0]), t, z0);
 
 % State values for landing back at nest
 z_nest = [0;0;0; 0;0;0; 0;0;0; 0;0;0]; % position and state for nest
@@ -115,18 +114,23 @@ u2=@(z) K*(z_nest - z) + u0;
 
 [t2, z2] = ode45(@(t,z) quadrotor(t,z,u2,qr.p,qr.r,qr.n), t, z(end,:));
 
-
-
-qr.plotResults(t, z);
+% Plot states for capture
 figure
-% Plot state for landing
+qr.plotResults(t, z);
+suptitle('Capture');
+
+% Plot states for landing
+figure
 qr.plotResults(t2, z2);
+suptitle('Return to Nest');
 
 t = [t;t2]
 z = [z;z2]
-%% Animation
+
+%% Set Up Animation
 
 animation_fig = figure;
+title('Animated Simulation');
 
 airspace_box_length = 10;
 
@@ -159,6 +163,7 @@ intruder_Color = intruder_Color(2,:);
 intruder_Body = plot3(2,2,2, 'Color',intruder_Color, 'LineWidth', 2,...
         'Parent', animation_axes);
 
+% Positions of rotors around center of mass
 for i=1:4
     rotor(i) = plot3(0,0,0, 'Color', lines(1), 'LineWidth', 2,...
         'Parent', animation_axes);
@@ -171,6 +176,7 @@ intruder_z = [ones(length(t),3)*5, zeros(length(t),3)];
 
 tic;
 
+%% Run Simulation
 for k=1:length(t)
 
     % Rotation matrix for quadcopter
@@ -191,6 +197,7 @@ for k=1:length(t)
         intruder_Pose = ones(N,1)*intruder_z(k,1:3) + (ones(N,1)*loc(i,:) + circle)*intruder_R';
         set(intruder_Rotor(i), 'XData', intruder_Pose(:,1), 'YData', intruder_Pose(:,2),  'ZData', intruder_Pose(:,3) );
     end
+    
     % Animate silhouette of X-Y-Z position for quadrotor
     set(silhouette,'XData', [0, z(k,1), z(k,1), z(k,1)],...
         'YData', [0, 0, z(k,2), z(k,2)],...
