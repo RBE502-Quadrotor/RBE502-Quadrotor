@@ -134,9 +134,9 @@ p = qr.p;
 [t, z] = ode45(@(t,z) quadrotor(t,z,u,qr.p,qr.r,qr.n), t, z0);  % [t, z] = ode45(@(t,z) quadrotor(t,z,u,p,[0;0;0],[0;0;0]), t, z0);
 
 % State values for chase quadrotor landing back at nest
-z_nest = [0;0;0; 0;0;0; 0;0;0; 0;0;0]; % position and state for nest
-u2=@(z) K*(z_nest - z) + u0;
-[t2, z2] = ode45(@(t,z) quadrotor(t,z,u2,qr.p,qr.r,qr.n), t, z(end,:));
+%z_nest = [0;0;0; 0;0;0; 0;0;0; 0;0;0]; % position and state for nest
+%u2=@(z) K*(z_nest - z) + u0;
+%[t2, z2] = ode45(@(t,z) quadrotor(t,z,u2,qr.p,qr.r,qr.n), t, z(end,:));
 
 %% Plot State Graphs
 
@@ -146,12 +146,14 @@ qr.plotResults(t, z);
 suptitle('Capture');
 
 % Plot states for landing
-figure
-qr.plotResults(t2, z2);
-suptitle('Return to Nest');
+% figure
+% qr.plotResults(t2, z2);
+% suptitle('Return to Nest');
 
-t = [t;t2]
-z = [z;z2]
+% t = [t;t2]
+% z = [z;z2]
+t = t
+z = z
 
 %% Set Up Animation
 
