@@ -37,8 +37,8 @@ A_intruder(8,4) = -1*intruder.g;
 B_intruder = zeros(12,4);
 B_intruder(9,:) = 1/intruder.m;
 B_intruder(10,2) = intruder.l/intruder.I(1);
-B_intruder(10,4) = intruder.l/intruder.I(1);
-B_intruder(11,1) = intruder.l/intruder.I(2);
+B_intruder(10,4) = -1*intruder.l/intruder.I(1);
+B_intruder(11,1) = -1*intruder.l/intruder.I(2);
 B_intruder(11,3) = intruder.l/intruder.I(2);
 B_intruder(12,1) = intruder.sigma/intruder.I(3);
 B_intruder(12,2) = -1*intruder.sigma/intruder.I(3);
@@ -46,7 +46,7 @@ B_intruder(12,3) = intruder.sigma/intruder.I(3);
 B_intruder(12,4) = -1*intruder.sigma/intruder.I(3);
 
 Q_intruder = eye(12);
-R_intruder = 10*eye(4);
+R_intruder = eye(4);
 
 K_intruder = lqr(A_intruder, B_intruder, Q_intruder, R_intruder);
 
