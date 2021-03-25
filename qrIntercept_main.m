@@ -143,12 +143,12 @@ p = qr.p;
 % Plot states for capture
 figure
 qr.plotResults(t, z);
-suptitle('Capture');
+subtitle('Capture');
 
 % Plot states for landing
 % figure
 % qr.plotResults(t2, z2);
-% suptitle('Return to Nest');
+% subtitle('Return to Nest');
 
 % t = [t;t2]
 % z = [z;z2]

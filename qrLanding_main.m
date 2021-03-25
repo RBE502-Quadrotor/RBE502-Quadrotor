@@ -6,11 +6,18 @@ clear all; clc; close all;
 addpath(".\templates\");
 
 % initial conditions (State Vector)
-z0 = zeros(12,1);   % z is the state vector (?)
-zd = [5;5;5; 0;0;0; 0;0;0; 0;0;0]; % Desired position and state (aka xd)
+z0 = [5;5;5; 0;0;0; 0;0;0; 0;0;0]; % Current Position to go to landing position
 
-r = [0; 0; 0];  % External Forces
-n = [0; 0; 0];  % Moment Vector
+% External Forces Vector
+rng(1)
+r = rand(3,1);
+
+% External Moment Vector
+rng(2)
+n = rand(3,1);
+
+% r = [0; 0; 0];  % External Forces
+% n = [0; 0; 0];  % Moment Vector
 u0 = [1; 0.9; 1.9; 1.5]; % rotor/motor inputs (?)
 
 qr = QuadrotorClass(z0, r, n, u0);
@@ -100,32 +107,28 @@ K = lqr(A,B,Q,R);
 
 u0  = ones(4,1)*qr.m*qr.g/4;
 
-u=@(z) K*(zd - z) + u0;
+% u=@(z) K*(zd - z) + u0;
 
-t = linspace(0, 5, 200);
-
-p = qr.p;
-[t, z] = ode45(@(t,z) quadrotor(t,z,u,qr.p,qr.r,qr.n), t, z0);  % [t, z] = ode45(@(t,z) quadrotor(t,z,u,p,[0;0;0],[0;0;0]), t, z0);
+t = linspace(0, 10, 200);
 
 % State values for landing back at nest
+z_hover = [0;0;1; 0;0;0; 0;0;0; 0;0;0]; % hover point above the nest
 z_nest = [0;0;0; 0;0;0; 0;0;0; 0;0;0]; % position and state for nest
 
+u1=@(z) K*(z_hover - z) + u0;
 u2=@(z) K*(z_nest - z) + u0;
 
-[t2, z2] = ode45(@(t,z) quadrotor(t,z,u2,qr.p,qr.r,qr.n), t, z(end,:));
+[t1, z1] = ode45(@(t,z) quadrotor(t,z,u1,qr.p,qr.r,qr.n), t, z0);
+[t2, z2] = ode45(@(t,z) quadrotor(t,z,u2,qr.p,qr.r,qr.n), t, z1(end,:));
 
-% Plot states for capture
-figure
-qr.plotResults(t, z);
-subtitle('Capture');
+t = [t1;t1(end)+t2];
+z = [z1;z2];
 
 % Plot states for landing
 figure
-qr.plotResults(t2, z2);
+qr.plotResults(t, z);
 subtitle('Return to Nest');
 
-t = [t;t2]
-z = [z;z2]
 
 %% Set Up Animation
 
@@ -171,8 +174,10 @@ for i=1:4
         'Parent', animation_axes);
 end
 
-% Fake state matrix for intruder quadcopter
-intruder_z = [ones(length(t),3)*5, zeros(length(t),3)];
+% Fake state matrix for captured intruder quadcopter, .25 meters below
+% quadcoper ( for animation purposes )
+% intruder_z = [ones(length(t),3)*5, zeros(length(t),3)];
+intruder_z = z + [zeros(length(z),2),ones(length(z),1)*-.25,zeros(length(z),9)];
 
 tic;
 
