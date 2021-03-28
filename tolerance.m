@@ -11,14 +11,14 @@ function [isRange, distance] = tolerance(friendly, enemy, l)
     ze = enemy(3);
     dummy = [friendly, enemy];
     
-%     distance = sqrt((xf^2 - xe^2)+ (yf^2 - ye^2) + (zf^2 - ze^2));
+    distance = sqrt((xf - xe)^2+ (yf - ye)^2 + (zf - ze)^2);
 
-    distance = norm(dummy, 2);
+%     distance = norm(dummy, 2);
     
     if distance <= epsi
         isRange = true;
     else
-        isRange = false
+        isRange = false;
     end
  
 end
