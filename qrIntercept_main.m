@@ -5,7 +5,7 @@ clear all; clc; close all;
 % provided us
 addpath(".\templates\");
 
-t = linspace(0, 5, 200);
+t = linspace(0, 20, 500);
 
 %% Main/Chase Quadrotor
 % initial conditions (State Vector)
@@ -18,7 +18,7 @@ qr = QuadrotorClass(z0, r, n, u0);
 
 %% Intruder Quadrotor
 % intruder parameters
-z0_intruder = [5;5;5; 0;0;0; 0;0;0; 0;0;0];
+z0_intruder = [-10;-10;5; 0;0;0; 0;0;0; 0;0;0];
 zd_intruder = [7;7;7; 0;0;0; 0;0;0; 0;0;0];
 r_intruder = zeros(3,1);
 n_intruder = zeros(3,1);
@@ -53,7 +53,14 @@ K_intruder = lqr(A_intruder, B_intruder, Q_intruder, R_intruder);
 u0_intruder = u0_intruder*intruder.m*intruder.g/4;
 u_intruder = @(z) K_intruder*(zd_intruder - z)+u0_intruder;
 
-[t_intruder, z_intruder] = ode45(@(t,z) quadrotor(t,z,u_intruder,intruder.p,intruder.r,intruder.n),t,z0_intruder);
+% [t_intruder, z_intruder] = ode45(@(t,z) quadrotor(t,z,u_intruder,intruder.p,intruder.r,intruder.n),t,z0_intruder);
+
+%% Intruder State Matrices
+% Moving in straight line across area
+% z_intruder_t = @(t) [0.5*t;t;0; 0;0;0; 1;2;0; 0;0;0]+z0_intruder
+
+% Stationary intruder
+z_intruder_t = @(t) [5;5;5; 0;0;0; 0;0;0; 0;0;0]
 
 %% Main/Chase Quadrotor Control
 % Quadrotor constants
@@ -100,6 +107,21 @@ B = [0,                0,                 0,                0;
 % D = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0;];
 
 % tuning performance cost (judged by state vector; affected by state error?)
+Q = [5 0 0 0 0 0 0 0 0 0 0 0;    % x error
+     0 5 0 0 0 0 0 0 0 0 0 0;    % y error
+     0 0 5 0 0 0 0 0 0 0 0 0;    % z error
+     0 0 0 .5 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
+     0 0 0 0 .5 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
+     0 0 0 0 0 .5 0 0 0 0 0 0;    % angular rotation (theta 3) error
+     0 0 0 0 0 0 .5 0 0 0 0 0;    % rate of translation (x) error
+     0 0 0 0 0 0 0 .5 0 0 0 0;    % rate of translation (y) error
+     0 0 0 0 0 0 0 0 .5 0 0 0;    % rate of translation (z) error
+     0 0 0 0 0 0 0 0 0 .5 0 0;    % rate of rotation (theta 1) error
+     0 0 0 0 0 0 0 0 0 0 .5 0;    % rate of rotation (theta 2) error
+     0 0 0 0 0 0 0 0 0 0 0 .5];   % rate of rotation (theta 3) error
+Q = eye(12);
+
+% Original Q Matrix
 Q = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 1 0 0 0 0 0 0 0 0 0 0;    % y error
     0 0 1 0 0 0 0 0 0 0 0 0;    % z error
@@ -114,11 +136,12 @@ Q = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 0 0 0 0 0 0 0 0 0 0 2];   % rate of rotation (theta 3) error
 
 % tuning actuator cost (judged by input gains; affects acceleration allowed or energy expended for maneuver)
-R = [1 0 0 0;       % x dot
-    0 1 0 0;        % alpha dot
-    0 0 1 0;        % v dot
-    0 0 0 1];       % omega dot
-
+R = [1 0 0 0;        % x dot
+     0 1 0 0;        % alpha dot
+     0 0 1 0;        % v dot
+     0 0 0 1];       % omega dot
+% Q = Q*7;
+% R = R*2;
 K = lqr(A,B,Q,R);
 
 % closed loop system 
@@ -128,11 +151,23 @@ K = lqr(A,B,Q,R);
 % State values for chase quadrotor interception
 % u0  = ones(4,1)*qr.m*qr.g/4;
 u0  = u0*qr.m*qr.g/4;
-u=@(z) K*(zd - z) + u0;
+u=@(t,z) K*(z_intruder_t(t) - z) + u0;
+% u=@(z) K*(zd - z) + u0;
 
 p = qr.p;
 [t, z] = ode45(@(t,z) quadrotor(t,z,u,qr.p,qr.r,qr.n), t, z0);  % [t, z] = ode45(@(t,z) quadrotor(t,z,u,p,[0;0;0],[0;0;0]), t, z0);
 
+% Check if caught
+endK = 0;
+for k=1:length(t)
+    if tolerance(z(k,:)',z_intruder_t(t(k)),qr.l) == 1
+        endK = k;
+        break
+    end
+end
+if endK > 0
+    timeCaught= t(endK);
+end
 % State values for chase quadrotor landing back at nest
 %z_nest = [0;0;0; 0;0;0; 0;0;0; 0;0;0]; % position and state for nest
 %u2=@(z) K*(z_nest - z) + u0;
@@ -142,8 +177,8 @@ p = qr.p;
 
 % Plot states for capture
 figure
+title('Capture');
 qr.plotResults(t, z);
-subtitle('Capture');
 
 % Plot states for landing
 % figure
@@ -205,8 +240,9 @@ intruder_z = [ones(length(t),3)*5, zeros(length(t),3)];
 tic;
 
 %% Run Simulation
+z_intruder = [];
 for k=1:length(t)
-
+    z_intruder(k,:) = z_intruder_t(t(k))';
     % Rotation matrix for quadcopter
     R = qr.quadrotorRotation(z(k,4), z(k,5), z(k,6));
     
