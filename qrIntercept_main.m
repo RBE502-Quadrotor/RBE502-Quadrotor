@@ -10,10 +10,11 @@ t = linspace(0, 20, 500);
 %% Main/Chase Quadrotor
 % initial conditions (State Vector)
 z0 = zeros(12,1);   % z is the state vector (?)
-zd = [5;5;5; 0;0;0; 0;0;0; 0;0;0]; % Desired position and state (aka xd)
+% zd = [5;5;5; 0;0;0; 0;0;0; 0;0;0]; % Desired position and state (aka xd)
 r = [0; 0; 0];  % External Forces
 n = [0; 0; 0];  % Moment Vector
 u0 = [1; 0.9; 1.9; 1.5]; % rotor/motor inputs (?)
+% u0 = zeros(4,1);
 qr = QuadrotorClass(z0, r, n, u0);
 
 %% Intruder Quadrotor
@@ -22,7 +23,8 @@ z0_intruder = [-10;-10;5; 0;0;0; 0;0;0; 0;0;0];
 zd_intruder = [7;7;7; 0;0;0; 0;0;0; 0;0;0];
 r_intruder = zeros(3,1);
 n_intruder = zeros(3,1);
-u0_intruder = zeros(4,1);
+% u0_intruder = zeros(4,1);
+u0_intruder = u0;
 intruder = QuadrotorClass(z0_intruder, r_intruder, n_intruder, u0_intruder);
 
 p_intruder = intruder.p;
@@ -53,7 +55,7 @@ K_intruder = lqr(A_intruder, B_intruder, Q_intruder, R_intruder);
 u0_intruder = u0_intruder*intruder.m*intruder.g/4;
 u_intruder = @(z) K_intruder*(zd_intruder - z)+u0_intruder;
 
-% [t_intruder, z_intruder] = ode45(@(t,z) quadrotor(t,z,u_intruder,intruder.p,intruder.r,intruder.n),t,z0_intruder);
+% [t_intruder, z_intruder_t] = ode45(@(t,z) quadrotor(t,z,u_intruder,intruder.p,intruder.r,intruder.n),t,z0_intruder);
 
 %% Intruder State Matrices
 % Moving in straight line across area
@@ -107,19 +109,21 @@ B = [0,                0,                 0,                0;
 % D = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0;];
 
 % tuning performance cost (judged by state vector; affected by state error?)
-Q = [5 0 0 0 0 0 0 0 0 0 0 0;    % x error
-     0 5 0 0 0 0 0 0 0 0 0 0;    % y error
-     0 0 5 0 0 0 0 0 0 0 0 0;    % z error
-     0 0 0 .5 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
-     0 0 0 0 .5 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
-     0 0 0 0 0 .5 0 0 0 0 0 0;    % angular rotation (theta 3) error
-     0 0 0 0 0 0 .5 0 0 0 0 0;    % rate of translation (x) error
-     0 0 0 0 0 0 0 .5 0 0 0 0;    % rate of translation (y) error
-     0 0 0 0 0 0 0 0 .5 0 0 0;    % rate of translation (z) error
-     0 0 0 0 0 0 0 0 0 .5 0 0;    % rate of rotation (theta 1) error
-     0 0 0 0 0 0 0 0 0 0 .5 0;    % rate of rotation (theta 2) error
-     0 0 0 0 0 0 0 0 0 0 0 .5];   % rate of rotation (theta 3) error
-Q = eye(12);
+% Q = [5 0 0 0 0 0 0 0 0 0 0 0;    % x error
+%      0 5 0 0 0 0 0 0 0 0 0 0;    % y error
+%      0 0 5 0 0 0 0 0 0 0 0 0;    % z error
+%      0 0 0 .5 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
+%      0 0 0 0 .5 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
+%      0 0 0 0 0 .5 0 0 0 0 0 0;    % angular rotation (theta 3) error
+%      0 0 0 0 0 0 .5 0 0 0 0 0;    % rate of translation (x) error
+%      0 0 0 0 0 0 0 .5 0 0 0 0;    % rate of translation (y) error
+%      0 0 0 0 0 0 0 0 .5 0 0 0;    % rate of translation (z) error
+%      0 0 0 0 0 0 0 0 0 .5 0 0;    % rate of rotation (theta 1) error
+%      0 0 0 0 0 0 0 0 0 0 .5 0;    % rate of rotation (theta 2) error
+%      0 0 0 0 0 0 0 0 0 0 0 .5];   % rate of rotation (theta 3) error
+
+% Q matrix is identity
+%  Q = eye(12);
 
 % Original Q Matrix
 Q = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
