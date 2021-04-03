@@ -115,8 +115,8 @@ t = linspace(0, 10, 200);
 z_hover = [0;0;1; 0;0;0; 0;0;0; 0;0;0]; % hover point above the nest
 z_nest = [0;0;0; 0;0;0; 0;0;0; 0;0;0]; % position and state for nest
 
-u1=@(z) K*(z_hover - z) + u0;
-u2=@(z) K*(z_nest - z) + u0;
+u1=@(t,z) K*(z_hover - z) + u0;
+u2=@(t,z) K*(z_nest - z) + u0;
 
 [t1, z1] = ode45(@(t,z) quadrotor(t,z,u1,qr.p,qr.r,qr.n), t, z0);
 [t2, z2] = ode45(@(t,z) quadrotor(t,z,u2,qr.p,qr.r,qr.n), t, z1(end,:));

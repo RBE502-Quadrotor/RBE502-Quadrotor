@@ -31,29 +31,29 @@ p_intruder = intruder.p;
 
 %% Intruder Control
 %System Dynamics 
-A_intruder = zeros(12);
-A_intruder(1:6,7:end) = eye(6);
-A_intruder(7,5) = intruder.g;
-A_intruder(8,4) = -1*intruder.g;
-
-B_intruder = zeros(12,4);
-B_intruder(9,:) = 1/intruder.m;
-B_intruder(10,2) = intruder.l/intruder.I(1);
-B_intruder(10,4) = -1*intruder.l/intruder.I(1);
-B_intruder(11,1) = -1*intruder.l/intruder.I(2);
-B_intruder(11,3) = intruder.l/intruder.I(2);
-B_intruder(12,1) = intruder.sigma/intruder.I(3);
-B_intruder(12,2) = -1*intruder.sigma/intruder.I(3);
-B_intruder(12,3) = intruder.sigma/intruder.I(3);
-B_intruder(12,4) = -1*intruder.sigma/intruder.I(3);
-
-Q_intruder = eye(12);
-R_intruder = eye(4);
-
-K_intruder = lqr(A_intruder, B_intruder, Q_intruder, R_intruder);
-
-u0_intruder = u0_intruder*intruder.m*intruder.g/4;
-u_intruder = @(z) K_intruder*(zd_intruder - z)+u0_intruder;
+% A_intruder = zeros(12);
+% A_intruder(1:6,7:end) = eye(6);
+% A_intruder(7,5) = intruder.g;
+% A_intruder(8,4) = -1*intruder.g;
+% 
+% B_intruder = zeros(12,4);
+% B_intruder(9,:) = 1/intruder.m;
+% B_intruder(10,2) = intruder.l/intruder.I(1);
+% B_intruder(10,4) = -1*intruder.l/intruder.I(1);
+% B_intruder(11,1) = -1*intruder.l/intruder.I(2);
+% B_intruder(11,3) = intruder.l/intruder.I(2);
+% B_intruder(12,1) = intruder.sigma/intruder.I(3);
+% B_intruder(12,2) = -1*intruder.sigma/intruder.I(3);
+% B_intruder(12,3) = intruder.sigma/intruder.I(3);
+% B_intruder(12,4) = -1*intruder.sigma/intruder.I(3);
+% 
+% Q_intruder = eye(12);
+% R_intruder = eye(4);
+% 
+% K_intruder = lqr(A_intruder, B_intruder, Q_intruder, R_intruder);
+% 
+% u0_intruder = u0_intruder*intruder.m*intruder.g/4;
+% u_intruder = @(z) K_intruder*(zd_intruder - z)+u0_intruder;
 
 % [t_intruder, z_intruder_t] = ode45(@(t,z) quadrotor(t,z,u_intruder,intruder.p,intruder.r,intruder.n),t,z0_intruder);
 
@@ -124,6 +124,7 @@ B = [0,                0,                 0,                0;
 
 % Q matrix is identity
 %  Q = eye(12);
+% 5.4506    5.3004    5.4602   -0.0000    0.0000    0.1332   -0.0000    0.0000   -0.0000    0.0000    0.0000    0.0066
 
 % Original Q Matrix
 Q = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
@@ -138,6 +139,7 @@ Q = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 0 0 0 0 0 0 0 0 2 0 0;    % rate of rotation (theta 1) error
     0 0 0 0 0 0 0 0 0 0 2 0;    % rate of rotation (theta 2) error
     0 0 0 0 0 0 0 0 0 0 0 2];   % rate of rotation (theta 3) error
+% 5.7804    5.5202    5.7971    0.0000   -0.0000    0.1906    0.0000    0.0000    0.0000   -0.0000    0.0000    0.0108
 
 % tuning actuator cost (judged by input gains; affects acceleration allowed or energy expended for maneuver)
 R = [1 0 0 0;        % x dot
@@ -154,8 +156,10 @@ K = lqr(A,B,Q,R);
 
 % State values for chase quadrotor interception
 % u0  = ones(4,1)*qr.m*qr.g/4;
-u0  = u0*qr.m*qr.g/4;
+% u0  = u0*qr.m*qr.g/4;
+u0  = ones(4,1)*qr.m*qr.g/4;
 u=@(t,z) K*(z_intruder_t(t) - z) + u0;
+% u=@(t,z) K*(z_intruder_t(t) - z);
 % u=@(z) K*(zd - z) + u0;
 
 p = qr.p;
