@@ -1,4 +1,5 @@
-clear all; clc; close all;
+clear all; clc; 
+% close all;
 
 % change current folder to wherever your git repos are;
 % this will include the templates folder, with the code the professor
@@ -7,14 +8,16 @@ addpath(".\templates\");
 
 % initial conditions (State Vector)
 z0 = [5;5;5; 0;0;0; 0;0;0; 0;0;0]; % Current Position to go to landing position
+r = [0; 0; 0];  % External Forces
+n = [0; 0; 0];  % Moment Vector
 
 % External Forces Vector
 rng(1)
-r = rand(3,1);
+% r = rand(3,1);
 
 % External Moment Vector
-rng(2)
-n = rand(3,1);
+% rng(2)
+% n = rand(3,1);
 
 % r = [0; 0; 0];  % External Forces
 % n = [0; 0; 0];  % Moment Vector
@@ -88,7 +91,18 @@ Q = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 0 0 0 0 0 0 0 0 2 0 0;    % rate of rotation (theta 1) error
     0 0 0 0 0 0 0 0 0 0 2 0;    % rate of rotation (theta 2) error
     0 0 0 0 0 0 0 0 0 0 0 2];   % rate of rotation (theta 3) error
-
+% Q = [3.55 0 0 0 0 0 0 0 0 0 0 0;   % x error
+%     0 3.55 0 0 0 0 0 0 0 0 0 0;    % y error
+%     0 0 1 0 0 0 0 0 0 0 0 0;    % z error
+%     0 0 0 1 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
+%     0 0 0 0 1 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
+%     0 0 0 0 0 1 0 0 0 0 0 0;    % angular rotation (theta 3) error
+%     0 0 0 0 0 0 4 0 0 0 0 0;    % rate of translation (x) error
+%     0 0 0 0 0 0 0 3 0 0 0 0;    % rate of translation (y) error
+%     0 0 0 0 0 0 0 0 3 0 0 0;    % rate of translation (z) error
+%     0 0 0 0 0 0 0 0 0 1 0 0;    % rate of rotation (theta 1) error
+%     0 0 0 0 0 0 0 0 0 0 1 0;    % rate of rotation (theta 2) error
+%     0 0 0 0 0 0 0 0 0 0 0 1];   % rate of rotation (theta 3) error
 
 % Q = eye(12);
 % R = 10*eye(4);
@@ -98,7 +112,10 @@ R = [1 0 0 0;       % x dot
     0 1 0 0;        % alpha dot
     0 0 1 0;        % v dot
     0 0 0 1];       % omega dot
-
+R = [1 0 0 0;        % x dot
+     0 1 0 0;        % alpha dot
+     0 0 10 0;        % v dot
+     0 0 0 10];       % omega dot
 K = lqr(A,B,Q,R);
 
 % closed loop system 
@@ -127,7 +144,7 @@ z = [z1;z2];
 % Plot states for landing
 figure
 qr.plotResults(t, z);
-subtitle('Return to Nest');
+sgtitle('Return to Nest');
 
 
 %% Set Up Animation

@@ -1,4 +1,5 @@
-clear all; clc; close all;
+clear all; clc; 
+% close all;
 
 % change current folder to wherever your git repos are;
 % this will include the templates folder, with the code the professor
@@ -13,7 +14,7 @@ z0 = zeros(12,1);   % z is the state vector (?)
 % zd = [5;5;5; 0;0;0; 0;0;0; 0;0;0]; % Desired position and state (aka xd)
 r = [0; 0; 0];  % External Forces
 n = [0; 0; 0];  % Moment Vector
-u0 = [1; 0.9; 1.9; 1.5]; % rotor/motor inputs (?)
+u0 = ones(4,1); % rotor/motor inputs (?)
 % u0 = zeros(4,1);
 qr = QuadrotorClass(z0, r, n, u0);
 
@@ -58,11 +59,15 @@ p_intruder = intruder.p;
 % [t_intruder, z_intruder_t] = ode45(@(t,z) quadrotor(t,z,u_intruder,intruder.p,intruder.r,intruder.n),t,z0_intruder);
 
 %% Intruder State Matrices
+% Moving in straight line across area and stop
+% Position offset by z0_intruder (ie (4,8) moves to (-6,2))
+z_intruder_t = @(t) [max(min(0.5*t,4),-10);max(min(t,8),-10);0; 0;0;0; 0;0;0; 0;0;0]+z0_intruder
+
 % Moving in straight line across area
-% z_intruder_t = @(t) [0.5*t;t;0; 0;0;0; 1;2;0; 0;0;0]+z0_intruder
+% z_intruder_t = @(t) [0.25*t;.5*t;0; 0;0;0; 0;0;0; 0;0;0]+z0_intruder
 
 % Stationary intruder
-z_intruder_t = @(t) [5;5;5; 0;0;0; 0;0;0; 0;0;0]
+% z_intruder_t = @(t) [5;5;5; 0;0;0; 0;0;0; 0;0;0]
 
 %% Main/Chase Quadrotor Control
 % Quadrotor constants
@@ -109,43 +114,43 @@ B = [0,                0,                 0,                0;
 % D = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0;];
 
 % tuning performance cost (judged by state vector; affected by state error?)
-% Q = [5 0 0 0 0 0 0 0 0 0 0 0;    % x error
-%      0 5 0 0 0 0 0 0 0 0 0 0;    % y error
-%      0 0 5 0 0 0 0 0 0 0 0 0;    % z error
-%      0 0 0 .5 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
-%      0 0 0 0 .5 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
-%      0 0 0 0 0 .5 0 0 0 0 0 0;    % angular rotation (theta 3) error
-%      0 0 0 0 0 0 .5 0 0 0 0 0;    % rate of translation (x) error
-%      0 0 0 0 0 0 0 .5 0 0 0 0;    % rate of translation (y) error
-%      0 0 0 0 0 0 0 0 .5 0 0 0;    % rate of translation (z) error
-%      0 0 0 0 0 0 0 0 0 .5 0 0;    % rate of rotation (theta 1) error
-%      0 0 0 0 0 0 0 0 0 0 .5 0;    % rate of rotation (theta 2) error
-%      0 0 0 0 0 0 0 0 0 0 0 .5];   % rate of rotation (theta 3) error
+Q = [3.5 0 0 0 0 0 0 0 0 0 0 0;   % x error
+    0 3.5 0 0 0 0 0 0 0 0 0 0;    % y error
+    0 0 1 0 0 0 0 0 0 0 0 0;    % z error
+    0 0 0 1 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
+    0 0 0 0 1 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
+    0 0 0 0 0 1 0 0 0 0 0 0;    % angular rotation (theta 3) error
+    0 0 0 0 0 0 4 0 0 0 0 0;    % rate of translation (x) error
+    0 0 0 0 0 0 0 3 0 0 0 0;    % rate of translation (y) error
+    0 0 0 0 0 0 0 0 3 0 0 0;    % rate of translation (z) error
+    0 0 0 0 0 0 0 0 0 1 0 0;    % rate of rotation (theta 1) error
+    0 0 0 0 0 0 0 0 0 0 1 0;    % rate of rotation (theta 2) error
+    0 0 0 0 0 0 0 0 0 0 0 1];   % rate of rotation (theta 3) error
 
 % Q matrix is identity
 %  Q = eye(12);
 % 5.4506    5.3004    5.4602   -0.0000    0.0000    0.1332   -0.0000    0.0000   -0.0000    0.0000    0.0000    0.0066
 
 % Original Q Matrix
-Q = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
-    0 1 0 0 0 0 0 0 0 0 0 0;    % y error
-    0 0 1 0 0 0 0 0 0 0 0 0;    % z error
-    0 0 0 1 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
-    0 0 0 0 1 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
-    0 0 0 0 0 1 0 0 0 0 0 0;    % angular rotation (theta 3) error
-    0 0 0 0 0 0 2 0 0 0 0 0;    % rate of translation (x) error
-    0 0 0 0 0 0 0 2 0 0 0 0;    % rate of translation (y) error
-    0 0 0 0 0 0 0 0 2 0 0 0;    % rate of translation (z) error
-    0 0 0 0 0 0 0 0 0 2 0 0;    % rate of rotation (theta 1) error
-    0 0 0 0 0 0 0 0 0 0 2 0;    % rate of rotation (theta 2) error
-    0 0 0 0 0 0 0 0 0 0 0 2];   % rate of rotation (theta 3) error
+% Q = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
+%     0 1 0 0 0 0 0 0 0 0 0 0;    % y error
+%     0 0 1 0 0 0 0 0 0 0 0 0;    % z error
+%     0 0 0 1 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
+%     0 0 0 0 1 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
+%     0 0 0 0 0 1 0 0 0 0 0 0;    % angular rotation (theta 3) error
+%     0 0 0 0 0 0 2 0 0 0 0 0;    % rate of translation (x) error
+%     0 0 0 0 0 0 0 2 0 0 0 0;    % rate of translation (y) error
+%     0 0 0 0 0 0 0 0 2 0 0 0;    % rate of translation (z) error
+%     0 0 0 0 0 0 0 0 0 2 0 0;    % rate of rotation (theta 1) error
+%     0 0 0 0 0 0 0 0 0 0 2 0;    % rate of rotation (theta 2) error
+%     0 0 0 0 0 0 0 0 0 0 0 2];   % rate of rotation (theta 3) error
 % 5.7804    5.5202    5.7971    0.0000   -0.0000    0.1906    0.0000    0.0000    0.0000   -0.0000    0.0000    0.0108
 
 % tuning actuator cost (judged by input gains; affects acceleration allowed or energy expended for maneuver)
 R = [1 0 0 0;        % x dot
      0 1 0 0;        % alpha dot
-     0 0 1 0;        % v dot
-     0 0 0 1];       % omega dot
+     0 0 10 0;        % v dot
+     0 0 0 10];       % omega dot
 % Q = Q*7;
 % R = R*2;
 K = lqr(A,B,Q,R);
@@ -173,8 +178,14 @@ for k=1:length(t)
         break
     end
 end
+
 if endK > 0
     timeCaught= t(endK);
+    t = t(1:endK)
+    z = z(1:endK,1:end)
+else
+    endK = length(t);
+    timeCaught = 0;
 end
 % State values for chase quadrotor landing back at nest
 %z_nest = [0;0;0; 0;0;0; 0;0;0; 0;0;0]; % position and state for nest
@@ -185,7 +196,7 @@ end
 
 % Plot states for capture
 figure
-title('Capture');
+sgtitle('Capture');
 qr.plotResults(t, z);
 
 % Plot states for landing
@@ -195,8 +206,8 @@ qr.plotResults(t, z);
 
 % t = [t;t2]
 % z = [z;z2]
-t = t
-z = z
+% t = t(1:endK)
+% z = z(1:endK)
 
 %% Set Up Animation
 
@@ -286,4 +297,8 @@ for k=1:length(t)
         'ZData', [intruder_Ctr([1 3],3); NaN; intruder_Ctr([2 4],3)] );
     pause(t(k)-toc);
     pause(0.01);
+end
+
+if endK > 0
+    disp(timeCaught);
 end
