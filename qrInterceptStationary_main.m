@@ -298,8 +298,9 @@ for k=1:length(t)
     pause(0.01);
 end
 
-plot3(z(:,1), z(:,2), z(:,3))
-plot3(z_intruder(:,1), z_intruder(:,2), z_intruder(:,3))
+path(1) = plot3(z(:,1), z(:,2), z(:,3), ':', 'Color', lines(1), 'LineWidth', 1)
+path(2) = plot3(z_intruder(:,1), z_intruder(:,2), z_intruder(:,3), ':', 'Color', intruder_Color, 'LineWidth', 1)
+legend(path, {'Defender', 'Intruder'})
 
 if endK > 0
     disp(timeCaught);
