@@ -13,11 +13,11 @@ n = [0; 0; 0];  % Moment Vector
 
 % External Forces Vector
 rng(1)
-% r = rand(3,1);
+r = rand(3,1);
 
 % External Moment Vector
 % rng(2)
-% n = rand(3,1);
+n = rand(3,1);
 
 % r = [0; 0; 0];  % External Forces
 % n = [0; 0; 0];  % Moment Vector
@@ -85,12 +85,12 @@ Q = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 0 0 1 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
     0 0 0 0 1 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
     0 0 0 0 0 1 0 0 0 0 0 0;    % angular rotation (theta 3) error
-    0 0 0 0 0 0 2 0 0 0 0 0;    % rate of translation (x) error
-    0 0 0 0 0 0 0 2 0 0 0 0;    % rate of translation (y) error
-    0 0 0 0 0 0 0 0 2 0 0 0;    % rate of translation (z) error
-    0 0 0 0 0 0 0 0 0 2 0 0;    % rate of rotation (theta 1) error
-    0 0 0 0 0 0 0 0 0 0 2 0;    % rate of rotation (theta 2) error
-    0 0 0 0 0 0 0 0 0 0 0 2];   % rate of rotation (theta 3) error
+    0 0 0 0 0 0 .02 0 0 0 0 0;    % rate of translation (x) error
+    0 0 0 0 0 0 0 .02 0 0 0 0;    % rate of translation (y) error
+    0 0 0 0 0 0 0 0 .02 0 0 0;    % rate of translation (z) error
+    0 0 0 0 0 0 0 0 0 .02 0 0;    % rate of rotation (theta 1) error
+    0 0 0 0 0 0 0 0 0 0 .02 0;    % rate of rotation (theta 2) error
+    0 0 0 0 0 0 0 0 0 0 0 .02];   % rate of rotation (theta 3) error
 % Q = [3.55 0 0 0 0 0 0 0 0 0 0 0;   % x error
 %     0 3.55 0 0 0 0 0 0 0 0 0 0;    % y error
 %     0 0 1 0 0 0 0 0 0 0 0 0;    % z error
@@ -116,6 +116,7 @@ R = [1 0 0 0;        % x dot
      0 1 0 0;        % alpha dot
      0 0 10 0;        % v dot
      0 0 0 10];       % omega dot
+% R = eye(4);
 K = lqr(A,B,Q,R);
 
 % closed loop system 
@@ -150,19 +151,19 @@ sgtitle('Return to Nest');
 %% Set Up Animation
 
 animation_fig = figure;
-title('Animated Simulation');
 
-airspace_box_length = 10;
+airspace_box_length = 5;
 
 animation_axes = axes('Parent', animation_fig,...
     'NextPlot','add','DataAspectRatio',[1 1 1],...
     'Xlim',airspace_box_length*[-1.0 1.0],...
     'Ylim',airspace_box_length*[-1.0 1.0],...
-    'Zlim',airspace_box_length*[0 1],...
+    'Zlim',airspace_box_length*[0 2],...
     'box','on','Xgrid','on','Ygrid','on','Zgrid','on',...
     'TickLabelInterpreter','LaTeX','FontSize',14);
 
 view(animation_axes, 3);
+title('Landing Simulation');
 
 N = 10;
 QQ = linspace(0,2*pi,N)';
@@ -234,6 +235,10 @@ for k=1:length(t)
     set(intruder_Body, 'XData', [intruder_Ctr([1 3],1); NaN; intruder_Ctr([2 4],1)], ...
         'YData', [intruder_Ctr([1 3],2); NaN; intruder_Ctr([2 4],2)],...
         'ZData', [intruder_Ctr([1 3],3); NaN; intruder_Ctr([2 4],3)] );
+    
     pause(t(k)-toc);
     pause(0.01);
 end
+% Show paths of quadrotor and intruder-
+plot3(z(:,1),z(:,2),z(:,3))
+plot3(intruder_z(:,1),intruder_z(:,2),intruder_z(:,3))
