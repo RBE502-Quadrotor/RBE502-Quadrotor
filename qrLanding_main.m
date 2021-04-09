@@ -13,11 +13,11 @@ n = [0; 0; 0];  % Moment Vector
 
 % External Forces Vector
 rng(1)
-r = rand(3,1);
+% r = rand(3,1);
 
 % External Moment Vector
 % rng(2)
-n = rand(3,1);
+% n = rand(3,1);
 
 % r = [0; 0; 0];  % External Forces
 % n = [0; 0; 0];  % Moment Vector
@@ -240,5 +240,5 @@ for k=1:length(t)
     pause(0.01);
 end
 % Show paths of quadrotor and intruder-
-plot3(z(:,1),z(:,2),z(:,3))
-plot3(intruder_z(:,1),intruder_z(:,2),intruder_z(:,3))
+path(1) = plot3(z(:,1), z(:,2), z(:,3), ':', 'Color', lines(1), 'LineWidth', 1)
+legend(path, 'Defender')
