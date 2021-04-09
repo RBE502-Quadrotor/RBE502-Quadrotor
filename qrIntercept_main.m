@@ -1,5 +1,5 @@
 clear all; clc; 
-% close all;
+close all;
 
 % change current folder to wherever your git repos are;
 % this will include the templates folder, with the code the professor
@@ -20,8 +20,8 @@ qr = QuadrotorClass(z0, r, n, u0);
 
 %% Intruder Quadrotor
 % intruder parameters
-z0_intruder = [-10;-10;5; 0;0;0; 0;0;0; 0;0;0];
-zd_intruder = [7;7;7; 0;0;0; 0;0;0; 0;0;0];
+z0_intruder = [-5;-5;2; 0;0;0; 0;0;0; 0;0;0];
+% zd_intruder = [7;7;7; 0;0;0; 0;0;0; 0;0;0];
 r_intruder = zeros(3,1);
 n_intruder = zeros(3,1);
 % u0_intruder = zeros(4,1);
@@ -61,7 +61,7 @@ p_intruder = intruder.p;
 %% Intruder State Matrices
 % Moving in straight line across area and stop
 % Position offset by z0_intruder (ie (4,8) moves to (-6,2))
-z_intruder_t = @(t) [max(min(0.5*t,4),-10);max(min(t,8),-10);0; 0;0;0; 0;0;0; 0;0;0]+z0_intruder
+z_intruder_t = @(t) [max(min(0.5*t,6),-10);max(min(t,6),-10);max(min(0.5*t,6),-10); 0;0;0; 0;0;0; 0;0;0]+z0_intruder
 
 % Moving in straight line across area
 % z_intruder_t = @(t) [0.25*t;.5*t;0; 0;0;0; 0;0;0; 0;0;0]+z0_intruder
@@ -114,21 +114,21 @@ B = [0,                0,                 0,                0;
 % D = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0;];
 
 % tuning performance cost (judged by state vector; affected by state error?)
-Q = [3.5 0 0 0 0 0 0 0 0 0 0 0;   % x error
-    0 3.5 0 0 0 0 0 0 0 0 0 0;    % y error
-    0 0 1 0 0 0 0 0 0 0 0 0;    % z error
-    0 0 0 1 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
-    0 0 0 0 1 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
-    0 0 0 0 0 1 0 0 0 0 0 0;    % angular rotation (theta 3) error
-    0 0 0 0 0 0 4 0 0 0 0 0;    % rate of translation (x) error
-    0 0 0 0 0 0 0 3 0 0 0 0;    % rate of translation (y) error
-    0 0 0 0 0 0 0 0 3 0 0 0;    % rate of translation (z) error
-    0 0 0 0 0 0 0 0 0 1 0 0;    % rate of rotation (theta 1) error
-    0 0 0 0 0 0 0 0 0 0 1 0;    % rate of rotation (theta 2) error
-    0 0 0 0 0 0 0 0 0 0 0 1];   % rate of rotation (theta 3) error
+% Q = [3.5 0 0 0 0 0 0 0 0 0 0 0;   % x error
+%     0 3.5 0 0 0 0 0 0 0 0 0 0;    % y error
+%     0 0 1 0 0 0 0 0 0 0 0 0;    % z error
+%     0 0 0 1 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
+%     0 0 0 0 1 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
+%     0 0 0 0 0 1 0 0 0 0 0 0;    % angular rotation (theta 3) error
+%     0 0 0 0 0 0 4 0 0 0 0 0;    % rate of translation (x) error
+%     0 0 0 0 0 0 0 3 0 0 0 0;    % rate of translation (y) error
+%     0 0 0 0 0 0 0 0 3 0 0 0;    % rate of translation (z) error
+%     0 0 0 0 0 0 0 0 0 1 0 0;    % rate of rotation (theta 1) error
+%     0 0 0 0 0 0 0 0 0 0 1 0;    % rate of rotation (theta 2) error
+%     0 0 0 0 0 0 0 0 0 0 0 1];   % rate of rotation (theta 3) error
 
 % Q matrix is identity
-%  Q = eye(12);
+ Q = eye(12);
 % 5.4506    5.3004    5.4602   -0.0000    0.0000    0.1332   -0.0000    0.0000   -0.0000    0.0000    0.0000    0.0066
 
 % Original Q Matrix
@@ -210,21 +210,20 @@ qr.plotResults(t, z);
 % z = z(1:endK)
 
 %% Set Up Animation
-
 animation_fig = figure;
-title('Animated Simulation');
 
-airspace_box_length = 10;
+airspace_box_length = 5;
 
 animation_axes = axes('Parent', animation_fig,...
     'NextPlot','add','DataAspectRatio',[1 1 1],...
     'Xlim',airspace_box_length*[-1.0 1.0],...
     'Ylim',airspace_box_length*[-1.0 1.0],...
-    'Zlim',airspace_box_length*[0 1],...
+    'Zlim',airspace_box_length*[0 2],...
     'box','on','Xgrid','on','Ygrid','on','Zgrid','on',...
     'TickLabelInterpreter','LaTeX','FontSize',14);
 
-view(animation_axes, 3);
+view(animation_axes,3);
+title('Intercept Moving Intruder');
 
 N = 10;
 QQ = linspace(0,2*pi,N)';
@@ -298,6 +297,9 @@ for k=1:length(t)
     pause(t(k)-toc);
     pause(0.01);
 end
+
+plot3(z(:,1), z(:,2), z(:,3))
+plot3(z_intruder(:,1), z_intruder(:,2), z_intruder(:,3))
 
 if endK > 0
     disp(timeCaught);
