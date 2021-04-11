@@ -1,5 +1,5 @@
 clear all; clc; 
-close all;
+% close all;
 
 % change current folder to wherever your git repos are;
 % this will include the templates folder, with the code the professor
@@ -113,44 +113,31 @@ B = [0,                0,                 0,                0;
 
 % D = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0;];
 
-% tuning performance cost (judged by state vector; affected by state error?)
-% Q = [3.5 0 0 0 0 0 0 0 0 0 0 0;   % x error
-%     0 3.5 0 0 0 0 0 0 0 0 0 0;    % y error
-%     0 0 1 0 0 0 0 0 0 0 0 0;    % z error
-%     0 0 0 1 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
-%     0 0 0 0 1 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
-%     0 0 0 0 0 1 0 0 0 0 0 0;    % angular rotation (theta 3) error
-%     0 0 0 0 0 0 4 0 0 0 0 0;    % rate of translation (x) error
-%     0 0 0 0 0 0 0 3 0 0 0 0;    % rate of translation (y) error
-%     0 0 0 0 0 0 0 0 3 0 0 0;    % rate of translation (z) error
-%     0 0 0 0 0 0 0 0 0 1 0 0;    % rate of rotation (theta 1) error
-%     0 0 0 0 0 0 0 0 0 0 1 0;    % rate of rotation (theta 2) error
-%     0 0 0 0 0 0 0 0 0 0 0 1];   % rate of rotation (theta 3) error
-
 % Q matrix is identity
- Q = eye(12);
-% 5.4506    5.3004    5.4602   -0.0000    0.0000    0.1332   -0.0000    0.0000   -0.0000    0.0000    0.0000    0.0066
+%  Q = eye(12);
 
 % Original Q Matrix
-% Q = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
-%     0 1 0 0 0 0 0 0 0 0 0 0;    % y error
-%     0 0 1 0 0 0 0 0 0 0 0 0;    % z error
-%     0 0 0 1 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
-%     0 0 0 0 1 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
-%     0 0 0 0 0 1 0 0 0 0 0 0;    % angular rotation (theta 3) error
-%     0 0 0 0 0 0 2 0 0 0 0 0;    % rate of translation (x) error
-%     0 0 0 0 0 0 0 2 0 0 0 0;    % rate of translation (y) error
-%     0 0 0 0 0 0 0 0 2 0 0 0;    % rate of translation (z) error
-%     0 0 0 0 0 0 0 0 0 2 0 0;    % rate of rotation (theta 1) error
-%     0 0 0 0 0 0 0 0 0 0 2 0;    % rate of rotation (theta 2) error
-%     0 0 0 0 0 0 0 0 0 0 0 2];   % rate of rotation (theta 3) error
-% 5.7804    5.5202    5.7971    0.0000   -0.0000    0.1906    0.0000    0.0000    0.0000   -0.0000    0.0000    0.0108
+% tuning performance cost (judged by state vector; affected by state error?)
+qa = [1;1;1; 1;1;1; 2;2;2; 2;2;2]
+Q = [qa(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
+    0 qa(2) 0 0 0 0 0 0 0 0 0 0;    % y error
+    0 0 qa(3) 0 0 0 0 0 0 0 0 0;    % z error
+    0 0 0 qa(4) 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
+    0 0 0 0 qa(5) 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
+    0 0 0 0 0 qa(6) 0 0 0 0 0 0;    % angular rotation (theta 3) error
+    0 0 0 0 0 0 qa(7) 0 0 0 0 0;    % rate of translation (x) error
+    0 0 0 0 0 0 0 qa(8) 0 0 0 0;    % rate of translation (y) error
+    0 0 0 0 0 0 0 0 qa(9) 0 0 0;    % rate of translation (z) error
+    0 0 0 0 0 0 0 0 0 qa(10) 0 0;    % rate of rotation (theta 1) error
+    0 0 0 0 0 0 0 0 0 0 qa(11) 0;    % rate of rotation (theta 2) error
+    0 0 0 0 0 0 0 0 0 0 0 qa(12)];   % rate of rotation (theta 3) error
 
 % tuning actuator cost (judged by input gains; affects acceleration allowed or energy expended for maneuver)
-R = [1 0 0 0;        % x dot
-     0 1 0 0;        % alpha dot
-     0 0 10 0;        % v dot
-     0 0 0 10];       % omega dot
+ra = [1; 10; 1; 10];
+R = [ra(1) 0 0 0;        % x dot
+     0 ra(2) 0 0;        % alpha dot
+     0 0 ra(3) 0;        % v dot
+     0 0 0  ra(4)];       % omega dot
 % Q = Q*7;
 % R = R*2;
 K = lqr(A,B,Q,R);
@@ -303,5 +290,5 @@ path(2) = plot3(z_intruder(:,1), z_intruder(:,2), z_intruder(:,3), ':', 'Color',
 legend(path, {'Defender', 'Intruder'})
 
 if endK > 0
-    disp(timeCaught);
+    fprintf("Time Caught: %.3f", timeCaught);
 end
