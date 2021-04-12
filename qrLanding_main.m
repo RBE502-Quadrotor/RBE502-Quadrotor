@@ -7,20 +7,26 @@ clear all; clc;
 addpath(".\templates\");
 
 % initial conditions (State Vector)
-z0 = [5;5;5; 0;0;0; 0;0;0; 0;0;0]; % Current Position to go to landing position
+z0 = [4;4;5; 0;0;0; 0;0;0; 0;0;0]; % Current Position to go to landing position
 r = [0; 0; 0];  % External Forces
 n = [0; 0; 0];  % Moment Vector
 
 % External Forces Vector
 rng(1)
-% r = rand(3,1);
+% Maximum norm of r  = 2N
+% Maximum value for r for each axis is sqrt(4/3)
+% r = rand(3,1)*sqrt(4/3);
+r = [.1; .1; .1];
+% r = [sqrt(4/3); sqrt(4/3); sqrt(4/3)];
 
 % External Moment Vector
 % rng(2)
+% Maximum norm of n  = 1Nm
+% Maximum value for r for each axis is sqrt(1/3)
 % n = rand(3,1);
+n = [.1; .1; .1];
+% n = [1; 1; 1];
 
-% r = [0; 0; 0];  % External Forces
-% n = [0; 0; 0];  % Moment Vector
 u0 = [1; 0.9; 1.9; 1.5]; % rotor/motor inputs (?)
 
 qr = QuadrotorClass(z0, r, n, u0);
@@ -79,18 +85,18 @@ B = [0,                0,                 0,                0;
 % D = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0;];
 
 % tuning performance cost (judged by state vector; affected by state error?)
-Q = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
-    0 1 0 0 0 0 0 0 0 0 0 0;    % y error
-    0 0 1 0 0 0 0 0 0 0 0 0;    % z error
-    0 0 0 1 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
-    0 0 0 0 1 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
-    0 0 0 0 0 1 0 0 0 0 0 0;    % angular rotation (theta 3) error
-    0 0 0 0 0 0 .02 0 0 0 0 0;    % rate of translation (x) error
-    0 0 0 0 0 0 0 .02 0 0 0 0;    % rate of translation (y) error
-    0 0 0 0 0 0 0 0 .02 0 0 0;    % rate of translation (z) error
-    0 0 0 0 0 0 0 0 0 .02 0 0;    % rate of rotation (theta 1) error
-    0 0 0 0 0 0 0 0 0 0 .02 0;    % rate of rotation (theta 2) error
-    0 0 0 0 0 0 0 0 0 0 0 .02];   % rate of rotation (theta 3) error
+% Q = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
+%     0 1 0 0 0 0 0 0 0 0 0 0;    % y error
+%     0 0 1 0 0 0 0 0 0 0 0 0;    % z error
+%     0 0 0 1 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
+%     0 0 0 0 1 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
+%     0 0 0 0 0 1 0 0 0 0 0 0;    % angular rotation (theta 3) error
+%     0 0 0 0 0 0 .02 0 0 0 0 0;    % rate of translation (x) error
+%     0 0 0 0 0 0 0 .02 0 0 0 0;    % rate of translation (y) error
+%     0 0 0 0 0 0 0 0 .02 0 0 0;    % rate of translation (z) error
+%     0 0 0 0 0 0 0 0 0 .02 0 0;    % rate of rotation (theta 1) error
+%     0 0 0 0 0 0 0 0 0 0 .02 0;    % rate of rotation (theta 2) error
+%     0 0 0 0 0 0 0 0 0 0 0 .02];   % rate of rotation (theta 3) error
 % Q = [3.55 0 0 0 0 0 0 0 0 0 0 0;   % x error
 %     0 3.55 0 0 0 0 0 0 0 0 0 0;    % y error
 %     0 0 1 0 0 0 0 0 0 0 0 0;    % z error
@@ -103,9 +109,53 @@ Q = [1 0 0 0 0 0 0 0 0 0 0 0;   % x error
 %     0 0 0 0 0 0 0 0 0 1 0 0;    % rate of rotation (theta 1) error
 %     0 0 0 0 0 0 0 0 0 0 1 0;    % rate of rotation (theta 2) error
 %     0 0 0 0 0 0 0 0 0 0 0 1];   % rate of rotation (theta 3) error
-
+% Q = [.01 0 0 0 0 0 0 0 0 0 0 0;   % x error
+%     0 .01 0 0 0 0 0 0 0 0 0 0;    % y error
+%     0 0 .01 0 0 0 0 0 0 0 0 0;    % z error
+%     0 0 0 2 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
+%     0 0 0 0 2 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
+%     0 0 0 0 0 2 0 0 0 0 0 0;    % angular rotation (theta 3) error
+%     0 0 0 0 0 0 40 0 0 0 0 0;    % rate of translation (x) error
+%     0 0 0 0 0 0 0 40 0 0 0 0;    % rate of translation (y) error
+%     0 0 0 0 0 0 0 0 40 0 0 0;    % rate of translation (z) error
+%     0 0 0 0 0 0 0 0 0 3 0 0;    % rate of rotation (theta 1) error
+%     0 0 0 0 0 0 0 0 0 0 3 0;    % rate of rotation (theta 2) error
+%     0 0 0 0 0 0 0 0 0 0 0 3];   % rate of rotation (theta 3) error
 % Q = eye(12);
 % R = 10*eye(4);
+
+% Experiment Data
+QD = [
+7,7,7,  2, 2, .01,  20, 20, 20,  1, 1, .01
+];
+Q = [QD(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
+    0 QD(2) 0 0 0 0 0 0 0 0 0 0;    % y error
+    0 0 QD(3) 0 0 0 0 0 0 0 0 0;    % z error
+    0 0 0 QD(4) 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
+    0 0 0 0 QD(5) 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
+    0 0 0 0 0 QD(6) 0 0 0 0 0 0;    % angular rotation (theta 3) error
+    0 0 0 0 0 0 QD(7) 0 0 0 0 0;    % rate of translation (x) error
+    0 0 0 0 0 0 0 QD(8) 0 0 0 0;    % rate of translation (y) error
+    0 0 0 0 0 0 0 0 QD(9) 0 0 0;    % rate of translation (z) error
+    0 0 0 0 0 0 0 0 0 QD(10) 0 0;    % rate of rotation (theta 1) error
+    0 0 0 0 0 0 0 0 0 0 QD(11) 0;    % rate of rotation (theta 2) error
+    0 0 0 0 0 0 0 0 0 0 0 QD(12)];   % rate of rotation (theta 3) error
+QD2 = [
+.05, .05, 10,  2, 2, .01,  20, 20, 1,  1, 1, .01
+];
+Q2 = [QD2(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
+    0 QD2(2) 0 0 0 0 0 0 0 0 0 0;    % y error
+    0 0 QD2(3) 0 0 0 0 0 0 0 0 0;    % z error
+    0 0 0 QD2(4) 0 0 0 0 0 0 0 0;    % angular rotation (theta 1) error
+    0 0 0 0 QD2(5) 0 0 0 0 0 0 0;    % angular rotation (theta 2) error
+    0 0 0 0 0 QD2(6) 0 0 0 0 0 0;    % angular rotation (theta 3) error
+    0 0 0 0 0 0 QD2(7) 0 0 0 0 0;    % rate of translation (x) error
+    0 0 0 0 0 0 0 QD2(8) 0 0 0 0;    % rate of translation (y) error
+    0 0 0 0 0 0 0 0 QD2(9) 0 0 0;    % rate of translation (z) error
+    0 0 0 0 0 0 0 0 0 QD2(10) 0 0;    % rate of rotation (theta 1) error
+    0 0 0 0 0 0 0 0 0 0 QD2(11) 0;    % rate of rotation (theta 2) error
+    0 0 0 0 0 0 0 0 0 0 0 QD2(12)];   % rate of rotation (theta 3) error
+% Q = eye(12);
 
 % tuning actuator cost (judged by input gains; affects acceleration allowed or energy expended for maneuver)
 R = [1 0 0 0;       % x dot
@@ -113,11 +163,12 @@ R = [1 0 0 0;       % x dot
     0 0 1 0;        % v dot
     0 0 0 1];       % omega dot
 R = [1 0 0 0;        % x dot
-     0 1 0 0;        % alpha dot
-     0 0 10 0;        % v dot
+     0 10 0 0;        % alpha dot
+     0 0 1 0;        % v dot
      0 0 0 10];       % omega dot
 % R = eye(4);
 K = lqr(A,B,Q,R);
+K2 = lqr(A,B,Q2,R);
 
 % closed loop system 
 
@@ -134,13 +185,62 @@ z_hover = [0;0;1; 0;0;0; 0;0;0; 0;0;0]; % hover point above the nest
 z_nest = [0;0;0; 0;0;0; 0;0;0; 0;0;0]; % position and state for nest
 
 u1=@(t,z) K*(z_hover - z) + u0;
-u2=@(t,z) K*(z_nest - z) + u0;
+u2=@(t,z) K2*(z_nest - z) + u0;
 
 [t1, z1] = ode45(@(t,z) quadrotor(t,z,u1,qr.p,qr.r,qr.n), t, z0);
+
+% Check if reached hover position
+hoverK = 0;
+for k=1:length(t)
+    if tolerance(z1(k,:)',z_hover,qr.l) == 1
+        hoverK = k;
+        break
+    end
+end
+
+if hoverK > 0
+    timeCaught= t1(hoverK);
+    t1 = t1(1:hoverK)
+    z1 = z1(1:hoverK,1:end)
+else
+    hoverK = length(t1);
+    timeCaught = 0;
+end
+
 [t2, z2] = ode45(@(t,z) quadrotor(t,z,u2,qr.p,qr.r,qr.n), t, z1(end,:));
 
 t = [t1;t1(end)+t2];
 z = [z1;z2];
+% t = t1;
+% z = z1;
+
+% Check if leaves airspace
+leavesAir = 0;
+for k=1:length(t)
+    if insideAirspace(z) == 0
+        leavesAir = k;
+        break
+    end
+end
+
+% Check if landed
+endK = 0;
+for k=1:length(t)
+%     if z(k,3) <= 0
+    if z(k,3) <= qr.l/2
+        endK = k;
+        break
+    end
+end
+
+if endK > 0
+    timeCaught= t(endK);
+    t = t(1:endK)
+    z = z(1:endK,1:end)
+else
+    endK = length(t);
+    timeCaught = 0;
+end
 
 % Plot states for landing
 figure
@@ -240,5 +340,6 @@ for k=1:length(t)
     pause(0.01);
 end
 % Show paths of quadrotor and intruder-
+animation_fig
 path(1) = plot3(z(:,1), z(:,2), z(:,3), ':', 'Color', lines(1), 'LineWidth', 1)
 legend(path, 'Defender')
