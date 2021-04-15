@@ -8,8 +8,11 @@ addpath(".\templates\");
 
 % initial conditions (State Vector)
 z0 = [4;4;5; 0;0;0; 0;0;0; 0;0;0]; % Current Position to go to landing position
-r = [0; 0; 0];  % External Forces
-n = [0; 0; 0];  % Moment Vector
+r_0 = [0; 0; 0];  % External Forces
+n_0 = [0; 0; 0];  % Moment Vector
+
+t = linspace(0, 10, 200);
+
 
 % External Forces Vector
 rng(1)
@@ -19,6 +22,13 @@ rng(1)
 r = [.1; .1; .1];
 % r = [sqrt(4/3); sqrt(4/3); sqrt(4/3)];
 
+% r disturbance over time
+r_range = rand(3,200*2)*sqrt(4/3);
+% r_range = zeros(3,200*2);
+% r = @(i) r_range(3,(round(i/.5)*5)+1);
+r = @(i) r_range(3,(round(i))+1);
+% r = @(i) r_range(3,(round(i,1)*10)+1);
+
 % External Moment Vector
 % rng(2)
 % Maximum norm of n  = 1Nm
@@ -26,6 +36,11 @@ r = [.1; .1; .1];
 % n = rand(3,1);
 n = [.1; .1; .1];
 % n = [1; 1; 1];
+n_range = rand(3,200*2);
+% n_range = zeros(3,200*2);
+% n = @(i) n_range(3,(round(i/.5)*5)+1);
+n = @(i) n_range(3,(round(i))+1);
+% n = @(i) n_range(3,(round(i,1)*10)+1);
 
 u0 = [1; 0.9; 1.9; 1.5]; % rotor/motor inputs (?)
 
@@ -126,7 +141,7 @@ B = [0,                0,                 0,                0;
 
 % Experiment Data
 QD = [
-7,7,7,  2, 2, .01,  20, 20, 20,  1, 1, .01
+1,1,10,  2,2,.01,  40,40,1,  30,30,.01
 ];
 Q = [QD(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 QD(2) 0 0 0 0 0 0 0 0 0 0;    % y error
@@ -141,7 +156,7 @@ Q = [QD(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 0 0 0 0 0 0 0 0 0 QD(11) 0;    % rate of rotation (theta 2) error
     0 0 0 0 0 0 0 0 0 0 0 QD(12)];   % rate of rotation (theta 3) error
 QD2 = [
-.05, .05, 10,  2, 2, .01,  20, 20, 1,  1, 1, .01
+.05, .05, 10,  2, 2, .01,  30, 30, 1,  30, 30, .01
 ];
 Q2 = [QD2(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 QD2(2) 0 0 0 0 0 0 0 0 0 0;    % y error
@@ -156,12 +171,16 @@ Q2 = [QD2(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 0 0 0 0 0 0 0 0 0 QD2(11) 0;    % rate of rotation (theta 2) error
     0 0 0 0 0 0 0 0 0 0 0 QD2(12)];   % rate of rotation (theta 3) error
 % Q = eye(12);
-
+% Q2 = eye(12);
 % tuning actuator cost (judged by input gains; affects acceleration allowed or energy expended for maneuver)
 R = [1 0 0 0;       % x dot
     0 1 0 0;        % alpha dot
     0 0 1 0;        % v dot
     0 0 0 1];       % omega dot
+% R = [1 0 0 0;        % x dot
+%      0 1 0 0;        % alpha dot
+%      0 0 120 0;        % v dot
+%      0 0 0 120];       % omega dot
 R = [1 0 0 0;        % x dot
      0 10 0 0;        % alpha dot
      0 0 1 0;        % v dot
@@ -178,7 +197,6 @@ u0  = ones(4,1)*qr.m*qr.g/4;
 
 % u=@(z) K*(zd - z) + u0;
 
-t = linspace(0, 10, 200);
 
 % State values for landing back at nest
 z_hover = [0;0;1; 0;0;0; 0;0;0; 0;0;0]; % hover point above the nest
