@@ -117,10 +117,10 @@ B = [0,                0,                 0,                0;
 % tuning performance cost (judged by state vector; affected by state error?)
 % qa = [100;100;130; 1;1;1; 20;20;20; 5;5;5];
 % ra = [120; 120; 1; 1];
-qa = ones(12);
-ra = ones(4);
-% qa = [100;100;130; 1;1;1; 20;20;20; 5;5;5];
-% ra = [120; 120; 1; 1];
+% qa = ones(12);
+% ra = ones(4);
+qa = [100;100;130; 1;1;1; 20;20;20; 5;5;5];
+ra = [120; 120; 1; 1];
 
 Q = [qa(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 qa(2) 0 0 0 0 0 0 0 0 0 0;    % y error
@@ -183,7 +183,7 @@ end
 %% Plot State Graphs
 
 % Plot states for capture
-figure;
+figure
 sgtitle('Capture');
 qr.plotResults(t, z);
 
@@ -198,20 +198,20 @@ qr.plotResults(t, z);
 % z = z(1:endK)
 
 %% Set Up Animation
-animation_fig = figure;
-% animation_fig = openfig("best.fig");
+% animation_fig = figure;
+animation_fig = openfig("best.fig");
 
 airspace_box_length = 5;
 
-% animation_axes = animation_fig.CurrentAxes;
+animation_axes = animation_fig.CurrentAxes;
 
-animation_axes = axes('Parent', animation_fig,...
-    'NextPlot','add','DataAspectRatio',[1 1 1],...
-    'Xlim',airspace_box_length*[-1.0 1.0],...
-    'Ylim',airspace_box_length*[-1.0 1.0],...
-    'Zlim',airspace_box_length*[0 2],...
-    'box','on','Xgrid','on','Ygrid','on','Zgrid','on',...
-    'TickLabelInterpreter','LaTeX','FontSize',14);
+% animation_axes = axes('Parent', animation_fig,...
+%     'NextPlot','add','DataAspectRatio',[1 1 1],...
+%     'Xlim',airspace_box_length*[-1.0 1.0],...
+%     'Ylim',airspace_box_length*[-1.0 1.0],...
+%     'Zlim',airspace_box_length*[0 2],...
+%     'box','on','Xgrid','on','Ygrid','on','Zgrid','on',...
+%     'TickLabelInterpreter','LaTeX','FontSize',14);
 
 view(animation_axes,3);
 title('Intercept Moving Intruder');
@@ -222,16 +222,14 @@ circle = 0.3*qr.l*[cos(QQ) sin(QQ) zeros(N,1)];
 loc = qr.l*[1 0 0; 0 1 0; -1 0 0; 0 -1 0];
 
 
-silhouette = plot3(0,0,0, '--', 'Color', [0.5 0.5 0.5], 'LineWidth', 1 ,...
-    'Parent', animation_axes);
+% silhouette = plot3(0,0,0, '--', 'Color', [0.5 0.5 0.5], 'LineWidth', 1 ,...
+%     'Parent', animation_axes);
 
-defender_Color = lines(1);  % faded blue
+defender_Color = [0, 0.5, 0];   % olive green
 body = plot3(0,0,0, 'Color',defender_Color, 'LineWidth', 2,...
         'Parent', animation_axes);
 
 % Define intruder color and intruder body
-% intruder_Color = lines(2);
-% intruder_Color = intruder_Color(2,:);
 intruder_Color = 'red';
 intruder_Body = plot3(2,2,2, 'Color',intruder_Color, 'LineWidth', 2,...
         'Parent', animation_axes);
@@ -240,8 +238,8 @@ intruder_Body = plot3(2,2,2, 'Color',intruder_Color, 'LineWidth', 2,...
 for i=1:4
     rotor(i) = plot3(0,0,0, 'Color', defender_Color, 'LineWidth', 2,...
         'Parent', animation_axes);
-    intruder_Rotor(i) = plot3(0,0,0, 'Color', intruder_Color, 'LineWidth', 2,...
-        'Parent', animation_axes);
+%     intruder_Rotor(i) = plot3(0,0,0, 'Color', intruder_Color, 'LineWidth', 2,...
+%         'Parent', animation_axes);
 end
 
 % Fake state matrix for intruder quadcopter
@@ -267,15 +265,15 @@ for k=1:length(t)
         set(rotor(i), 'XData', pose(:,1), 'YData', pose(:,2),  'ZData', pose(:,3) );
         
         % Update pose for intruder quadrotor
-        intruder_Ctr(i,:) = z_intruder(k,1:3) + loc(i,:)*intruder_R';
-        intruder_Pose = ones(N,1)*z_intruder(k,1:3) + (ones(N,1)*loc(i,:) + circle)*intruder_R';
-        set(intruder_Rotor(i), 'XData', intruder_Pose(:,1), 'YData', intruder_Pose(:,2),  'ZData', intruder_Pose(:,3) );
+%         intruder_Ctr(i,:) = z_intruder(k,1:3) + loc(i,:)*intruder_R';
+%         intruder_Pose = ones(N,1)*z_intruder(k,1:3) + (ones(N,1)*loc(i,:) + circle)*intruder_R';
+%         set(intruder_Rotor(i), 'XData', intruder_Pose(:,1), 'YData', intruder_Pose(:,2),  'ZData', intruder_Pose(:,3) );
     end
     
     % Animate silhouette of X-Y-Z position for quadrotor
-    set(silhouette,'XData', [0, z(k,1), z(k,1), z(k,1)],...
-        'YData', [0, 0, z(k,2), z(k,2)],...
-        'ZData', [0, 0, 0, z(k,3)]);
+%     set(silhouette,'XData', [0, z(k,1), z(k,1), z(k,1)],...
+%         'YData', [0, 0, z(k,2), z(k,2)],...
+%         'ZData', [0, 0, 0, z(k,3)]);
     
     % Animate Quadrotor
     set(body, 'XData', [ctr([1 3],1); NaN; ctr([2 4],1)], ...
@@ -283,19 +281,19 @@ for k=1:length(t)
         'ZData', [ctr([1 3],3); NaN; ctr([2 4],3)] );
     
     % Animate Enemy
-    set(intruder_Body, 'XData', [intruder_Ctr([1 3],1); NaN; intruder_Ctr([2 4],1)], ...
-        'YData', [intruder_Ctr([1 3],2); NaN; intruder_Ctr([2 4],2)],...
-        'ZData', [intruder_Ctr([1 3],3); NaN; intruder_Ctr([2 4],3)] );
+%     set(intruder_Body, 'XData', [intruder_Ctr([1 3],1); NaN; intruder_Ctr([2 4],1)], ...
+%         'YData', [intruder_Ctr([1 3],2); NaN; intruder_Ctr([2 4],2)],...
+%         'ZData', [intruder_Ctr([1 3],3); NaN; intruder_Ctr([2 4],3)] );
     pause(t(k)-toc);
     pause(0.01);
 end
 
-path(1) = plot3(z_intruder(:,1), z_intruder(:,2), z_intruder(:,3), ':', 'Color', intruder_Color, 'LineWidth', 1.5);
-path(2) = plot3(z(:,1), z(:,2), z(:,3), ':', 'Color', defender_Color, 'LineWidth', 1.5);
-savedMtx = matfile('bestZ.mat');
-bestZ = savedMtx.bestZ;
-path(3) = plot3(bestZ(:,1), bestZ(:,2), bestZ(:,3), ':', 'Color', [0, 0.7, 0], 'LineWidth', 1.5);
-legend(path, {'Intruder','Defender (eye)', 'Defender (best)'});
+% path(1) = plot3(z(:,1), z(:,2), z(:,3), ':', 'Color', defender_Color, 'LineWidth', 1.5);
+% path(2) = plot3(z_intruder(:,1), z_intruder(:,2), z_intruder(:,3), ':', 'Color', intruder_Color, 'LineWidth', 1.5);
+% plot3(z(:,1), z(:,2), z(:,3), ':', 'Color', defender_Color, 'LineWidth', 1.5);
+% legend(path, {'Defender (eye)', 'Intruder', 'Defender (best)'});
+bestZ = [z(:,1), z(:,2), z(:,3)];
+save('bestZ.mat', 'bestZ');
 
 if endK > 0
     fprintf("Time Caught: %.3f\n", timeCaught);

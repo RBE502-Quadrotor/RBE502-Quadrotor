@@ -82,7 +82,7 @@ classdef QuadrotorClass
             end
             bodyPos = [ctr([1 3],1), NaN, ctr([2 4],1);
                        ctr([1 3],2), NaN, ctr([2 4],2);
-                       ctr([1 3],3), NaN, ctr([2 4],3)]
+                       ctr([1 3],3), NaN, ctr([2 4],3)];
         end
         
         function R = quadrotorRotation(this, a1, a2, a3)
