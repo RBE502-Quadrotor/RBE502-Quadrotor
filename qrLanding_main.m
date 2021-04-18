@@ -1,5 +1,5 @@
 clear all; clc; 
-% close all;
+close all;
 
 % change current folder to wherever your git repos are;
 % this will include the templates folder, with the code the professor
@@ -19,14 +19,14 @@ rng(1)
 % Maximum norm of r  = 2N
 % Maximum value for r for each axis is sqrt(4/3)
 % r = rand(3,1)*sqrt(4/3);
-r = [.1; .1; .1];
+% r = [.1; .1; .1];
 % r = [sqrt(4/3); sqrt(4/3); sqrt(4/3)];
 
 % r disturbance over time
-r_range = rand(3,200*2)*sqrt(4/3);
-% r_range = zeros(3,200*2);
+% r_range = rand(3,200*2)*sqrt(4/3);
+% % r_range = zeros(3,200*2);
 % r = @(i) r_range(3,(round(i/.5)*5)+1);
-r = @(i) r_range(3,(round(i))+1);
+% r = @(i) r_range(3,(round(i))+1);
 % r = @(i) r_range(3,(round(i,1)*10)+1);
 
 % External Moment Vector
@@ -34,12 +34,12 @@ r = @(i) r_range(3,(round(i))+1);
 % Maximum norm of n  = 1Nm
 % Maximum value for r for each axis is sqrt(1/3)
 % n = rand(3,1);
-n = [.1; .1; .1];
+% n = [.1; .1; .1];
 % n = [1; 1; 1];
-n_range = rand(3,200*2);
+% n_range = rand(3,200*2);
 % n_range = zeros(3,200*2);
 % n = @(i) n_range(3,(round(i/.5)*5)+1);
-n = @(i) n_range(3,(round(i))+1);
+% n = @(i) n_range(3,(round(i))+1);
 % n = @(i) n_range(3,(round(i,1)*10)+1);
 
 u0 = [1; 0.9; 1.9; 1.5]; % rotor/motor inputs (?)
@@ -140,9 +140,10 @@ B = [0,                0,                 0,                0;
 % R = 10*eye(4);
 
 % Experiment Data
-QD = [
-1,1,10,  2,2,.01,  40,40,1,  30,30,.01
-];
+% QD = [
+% 20,20,30,  1,1,1,  1,1,1,  1,1,1
+% ];
+QD = ones(12,1);
 Q = [QD(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 QD(2) 0 0 0 0 0 0 0 0 0 0;    % y error
     0 0 QD(3) 0 0 0 0 0 0 0 0 0;    % z error
@@ -155,9 +156,10 @@ Q = [QD(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 0 0 0 0 0 0 0 0 QD(10) 0 0;    % rate of rotation (theta 1) error
     0 0 0 0 0 0 0 0 0 0 QD(11) 0;    % rate of rotation (theta 2) error
     0 0 0 0 0 0 0 0 0 0 0 QD(12)];   % rate of rotation (theta 3) error
-QD2 = [
-.05, .05, 10,  2, 2, .01,  30, 30, 1,  30, 30, .01
-];
+% QD2 = [
+% .05, .05, 10,  2, 2, .01,  30, 30, 1,  30, 30, .01
+% ];
+QD2 = ones(12,1);
 Q2 = [QD2(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 QD2(2) 0 0 0 0 0 0 0 0 0 0;    % y error
     0 0 QD2(3) 0 0 0 0 0 0 0 0 0;    % z error
@@ -182,9 +184,9 @@ R = [1 0 0 0;       % x dot
 %      0 0 120 0;        % v dot
 %      0 0 0 120];       % omega dot
 R = [1 0 0 0;        % x dot
-     0 10 0 0;        % alpha dot
+     0 1 0 0;        % alpha dot
      0 0 1 0;        % v dot
-     0 0 0 10];       % omega dot
+     0 0 0 1];       % omega dot
 % R = eye(4);
 K = lqr(A,B,Q,R);
 K2 = lqr(A,B,Q2,R);
