@@ -292,8 +292,8 @@ end
 
 path(1) = plot3(z_intruder(:,1), z_intruder(:,2), z_intruder(:,3), ':', 'Color', intruder_Color, 'LineWidth', 1.5);
 path(2) = plot3(z(:,1), z(:,2), z(:,3), ':', 'Color', defender_Color, 'LineWidth', 1.5);
-savedMtx = matfile('bestZ.mat');
-bestZ = savedMtx.bestZ;
+savedMtx = matfile('bestZ_mvngTrgt.mat');
+bestZ = savedMtx.bestZ_mvngTrgt;
 path(3) = plot3(bestZ(:,1), bestZ(:,2), bestZ(:,3), ':', 'Color', [0, 0.7, 0], 'LineWidth', 1.5);
 legend(path, {'Intruder','Defender (eye)', 'Defender (best)'});
 

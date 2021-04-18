@@ -198,20 +198,20 @@ qr.plotResults(t, z);
 % z = z(1:endK)
 
 %% Set Up Animation
-% animation_fig = figure;
-animation_fig = openfig("best.fig");
+animation_fig = figure;
+% animation_fig = openfig("best.fig");
 
 airspace_box_length = 5;
 
-animation_axes = animation_fig.CurrentAxes;
+% animation_axes = animation_fig.CurrentAxes;
 
-% animation_axes = axes('Parent', animation_fig,...
-%     'NextPlot','add','DataAspectRatio',[1 1 1],...
-%     'Xlim',airspace_box_length*[-1.0 1.0],...
-%     'Ylim',airspace_box_length*[-1.0 1.0],...
-%     'Zlim',airspace_box_length*[0 2],...
-%     'box','on','Xgrid','on','Ygrid','on','Zgrid','on',...
-%     'TickLabelInterpreter','LaTeX','FontSize',14);
+animation_axes = axes('Parent', animation_fig,...
+    'NextPlot','add','DataAspectRatio',[1 1 1],...
+    'Xlim',airspace_box_length*[-1.0 1.0],...
+    'Ylim',airspace_box_length*[-1.0 1.0],...
+    'Zlim',airspace_box_length*[0 2],...
+    'box','on','Xgrid','on','Ygrid','on','Zgrid','on',...
+    'TickLabelInterpreter','LaTeX','FontSize',14);
 
 view(animation_axes,3);
 title('Intercept Moving Intruder');
@@ -292,8 +292,8 @@ end
 % path(2) = plot3(z_intruder(:,1), z_intruder(:,2), z_intruder(:,3), ':', 'Color', intruder_Color, 'LineWidth', 1.5);
 % plot3(z(:,1), z(:,2), z(:,3), ':', 'Color', defender_Color, 'LineWidth', 1.5);
 % legend(path, {'Defender (eye)', 'Intruder', 'Defender (best)'});
-bestZ = [z(:,1), z(:,2), z(:,3)];
-save('bestZ.mat', 'bestZ');
+bestZ_mvngTrgt = [z(:,1), z(:,2), z(:,3)];
+save('bestZ_mvngTrgt.mat', 'bestZ_mvngTrgt');
 
 if endK > 0
     fprintf("Time Caught: %.3f\n", timeCaught);
