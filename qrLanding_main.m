@@ -23,7 +23,9 @@ r = [.1; .1; .1];
 % r = [sqrt(4/3); sqrt(4/3); sqrt(4/3)];
 
 % r disturbance over time
-r_range = rand(3,200*2)*sqrt(4/3);
+r_max = sqrt(4/3);
+r_range = -1*r_max + (r_max+r_max)*rand(3,200*2);
+% r_range = rand(3,200*2)*sqrt(4/3);
 % r_range = zeros(3,200*2);
 % r = @(i) r_range(3,(round(i/.5)*5)+1); % Every half second
 r = @(i) r_range(3,(round(i))+1); % Every second
@@ -36,7 +38,9 @@ r = @(i) r_range(3,(round(i))+1); % Every second
 % n = rand(3,1);
 n = [.1; .1; .1];
 % n = [1; 1; 1];
-n_range = rand(3,200*2);
+
+n_range = -1 + (1+1)*rand(3,200*2);
+% n_range = rand(3,200*2);
 % n_range = zeros(3,200*2);
 % n = @(i) n_range(3,(round(i/.5)*5)+1); % Every half second
 n = @(i) n_range(3,(round(i))+1); % Every second
@@ -141,7 +145,7 @@ B = [0,                0,                 0,                0;
 
 % Experiment Data
 QD = [
-100,100,100,  10,10,10,  80,80,80,  1,1,1
+100,100,100,  1,1,1,  1,1,1,  1,1,1
 ];
 Q = [QD(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 QD(2) 0 0 0 0 0 0 0 0 0 0;    % y error
@@ -156,7 +160,7 @@ Q = [QD(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 0 0 0 0 0 0 0 0 0 QD(11) 0;    % rate of rotation (theta 2) error
     0 0 0 0 0 0 0 0 0 0 0 QD(12)];   % rate of rotation (theta 3) error
 QD2 = [
-100,100,100,  10,10,10,  80,80,80,  1,1,1
+100,100,100,  1,1,1,  80,80,80,  1,1,1
 ];
 Q2 = [QD2(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 QD2(2) 0 0 0 0 0 0 0 0 0 0;    % y error
@@ -183,8 +187,8 @@ Q2 = [QD2(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
 %      0 0 1 0;        % v dot
 %      0 0 0 10];       % omega dot
 % R = eye(4);
-rmtx = [ 100, 100, 50, 1 ];
-rmtx2 = [ 100, 100, 50, 1 ];
+rmtx = [ 100, 100, 1, 1 ];
+rmtx2 = [ 100, 100, 1, 1 ];
 R = [rmtx(1) 0 0 0;       % x dot
     0 rmtx(2) 0 0;        % alpha dot
     0 0 rmtx(3) 0;        % v dot
