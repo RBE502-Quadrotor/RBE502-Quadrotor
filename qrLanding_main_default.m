@@ -20,16 +20,15 @@ rng(1)
 % Maximum value for r for each axis is sqrt(4/3)
 % r = rand(3,1)*sqrt(4/3);
 % r = [.1; .1; .1];
+% r = [0; 0; 0];
 % r = [sqrt(4/3); sqrt(4/3); sqrt(4/3)];
 
 % r disturbance over time
-r_max = sqrt(4/3);
-% r_range = -1*r_max + (r_max+r_max)*rand(3,200*2);
 r_range = rand(3,200*2)*sqrt(4/3);
 % r_range = zeros(3,200*2);
-% r = @(i) r_range(3,(round(i/.5)*5)+1); % Every half second
-r = @(i) r_range(3,(round(i))+1); % Every second
-% r = @(i) r_range(3,(round(i,1)*10)+1); % Every .1 second
+% r = @(i) r_range(3,(round(i/.5)*5)+1);
+r = @(i) r_range(3,(round(i))+1);
+% r = @(i) r_range(3,(round(i,1)*10)+1);
 
 % External Moment Vector
 % rng(2)
@@ -38,17 +37,16 @@ r = @(i) r_range(3,(round(i))+1); % Every second
 % n = rand(3,1);
 % n = [.1; .1; .1];
 % n = [1; 1; 1];
-
-% n_range = -1 + (1+1)*rand(3,200*2);
+% n = [0; 0; 0];
 % n_range = rand(3,200*2);
 n_range = zeros(3,200*2);
-% n = @(i) n_range(3,(round(i/.5)*5)+1); % Every half second
-n = @(i) n_range(3,(round(i))+1); % Every second
-% n = @(i) n_range(3,(round(i,1)*10)+1); % Every .1 second
+% n = @(i) n_range(3,(round(i/.5)*5)+1);
+% n = @(i) n_range(3,(round(i))+1);
+n = @(i) n_range(3,(round(i,1)*10)+1);
 
 u0 = [1; 0.9; 1.9; 1.5]; % rotor/motor inputs (?)
 
-qr = QuadrotorClass(z0, r, n, u0);
+qr = QuadrotorClass(z0, r(1), n(1), u0);
 
 % intruder parameters
 u_intruder = [1; 0.9; 1.9; 1.5];
@@ -154,6 +152,8 @@ QD2 = ones(12,1);
 % QD2 = [ 100,100,100,  1,1,1,  80,80,80,  1,1,1 ];
 
 % Experiment Data
+% QD = [ 100,100,100,  1,1,1,  100,100,100,  1,1,1 ];
+% QD = ones(12,1);
 Q = [QD(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 QD(2) 0 0 0 0 0 0 0 0 0 0;    % y error
     0 0 QD(3) 0 0 0 0 0 0 0 0 0;    % z error
@@ -166,7 +166,8 @@ Q = [QD(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 0 0 0 0 0 0 0 0 QD(10) 0 0;    % rate of rotation (theta 1) error
     0 0 0 0 0 0 0 0 0 0 QD(11) 0;    % rate of rotation (theta 2) error
     0 0 0 0 0 0 0 0 0 0 0 QD(12)];   % rate of rotation (theta 3) error
-
+% QD2 = [ 100,100,100,  1,1,1,  100,100,100,  1,1,1 ];
+% QD2 = ones(12,1);
 Q2 = [QD2(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 QD2(2) 0 0 0 0 0 0 0 0 0 0;    % y error
     0 0 QD2(3) 0 0 0 0 0 0 0 0 0;    % z error
@@ -182,25 +183,26 @@ Q2 = [QD2(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
 % Q = eye(12);
 % Q2 = eye(12);
 % tuning actuator cost (judged by input gains; affects acceleration allowed or energy expended for maneuver)
-% R = [1 0 0 0;       % x dot
-%     0 1 0 0;        % alpha dot
-%     0 0 1 0;        % v dot
-%     0 0 0 1];       % omega dot
-
-% R = [1 0 0 0;        % x dot
-%      0 10 0 0;        % alpha dot
-%      0 0 1 0;        % v dot
-%      0 0 0 10];       % omega dot
-% R = eye(4);
-
+% rmtx = [ 100, 100, 1, 1 ];
 R = [rmtx(1) 0 0 0;       % x dot
     0 rmtx(2) 0 0;        % alpha dot
     0 0 rmtx(3) 0;        % v dot
     0 0 0 rmtx(4)];       % omega dot
+% R = [1 0 0 0;        % x dot
+%      0 1 0 0;        % alpha dot
+%      0 0 120 0;        % v dot
+%      0 0 0 120];       % omega dot
+% R = [1 0 0 0;        % x dot
+%      0 1 0 0;        % alpha dot
+%      0 0 1 0;        % v dot
+%      0 0 0 1];       % omega dot
+% R = eye(4);
+
 R2 = [rmtx2(1) 0 0 0;       % x dot
       0 rmtx2(2) 0 0;        % alpha dot
       0 0 rmtx2(3) 0;        % v dot
       0 0 0 rmtx2(4)];       % omega dot
+
 K = lqr(A,B,Q,R);
 K2 = lqr(A,B,Q2,R2);
 
@@ -220,7 +222,7 @@ z_nest = [0;0;0; 0;0;0; 0;0;0; 0;0;0]; % position and state for nest
 u1=@(t,z) K*(z_hover - z) + u0;
 u2=@(t,z) K2*(z_nest - z) + u0;
 
-[t1, z1] = ode45(@(t,z) quadrotor_landing(t,z,u1,qr.p,qr.r,qr.n), t, z0);
+[t1, z1] = ode45(@(t,z) quadrotor(t,z,u1,qr.p,qr.r,qr.n), t, z0);
 
 % Check if reached hover position
 hoverK = 0;
@@ -240,7 +242,7 @@ else
     timeCaught = 0;
 end
 
-[t2, z2] = ode45(@(t,z) quadrotor_landing(t,z,u2,qr.p,qr.r,qr.n), t, z1(end,:));
+[t2, z2] = ode45(@(t,z) quadrotor(t,z,u2,qr.p,qr.r,qr.n), t, z1(end,:));
 
 t = [t1;t1(end)+t2];
 z = [z1;z2];
@@ -278,7 +280,7 @@ end
 % Plot states for landing
 figure
 qr.plotResults(t, z);
-sgtitle('Return to Nest and Land');
+sgtitle('Return to Nest');
 
 
 %% Set Up Animation
@@ -372,10 +374,17 @@ for k=1:length(t)
     pause(t(k)-toc);
     pause(0.01);
 end
-% Show paths of quadrotor and intruder-animation_fig
-path(1) = plot3(z(:,1), z(:,2), z(:,3), ':', 'Color', lines(1), 'LineWidth', 1);
-legend(path, 'Defender');
+% Show paths of quadrotor and intruder-
+% animation_fig
+path(1) = plot3(z(:,1), z(:,2), z(:,3), ':', 'Color', lines(1), 'LineWidth', 1.5);
+savedMtx = matfile('bestZ_landing.mat');
+bestZ = savedMtx.bestZ_landing;
+path(2) = plot3(bestZ(:,1), bestZ(:,2), bestZ(:,3), ':', 'Color', [0, 0.7, 0], 'LineWidth', 1.5);
+legend(path, {'Defender (eye)', 'Defender (best)'});
 
-fprintf("Time Landed: %.3f\n", t(end));
+if endK > 0
+    fprintf("Time Caught: %.3f\n", timeCaught);
+end
+
 fprintf("Error %.3f, %.3f, %.3f\n",  [z(end,7), z(end,8), z(end,9)])
 fprintf("Hover K %i\n", hoverK)
