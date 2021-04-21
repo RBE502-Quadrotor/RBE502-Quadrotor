@@ -37,7 +37,7 @@ classdef QuadrotorClass
         
         % Graph of x, xdot, alpha, and omega
         function plotResults(this, t, z)
-            yaxis_labels = {'x', '$\alpha$', '$\dot{x}$', '$\omega$'};
+            yaxis_labels = {'x', '$\dot{x}$', '$\alpha$', '$\omega$'};
             
             for i=1:4
                 ax(i) = subplot(2,2,i,'NextPlot','Add','Box','on','XGrid','on','YGrid','on',...
@@ -49,23 +49,23 @@ classdef QuadrotorClass
 
             plot(ax(1), t, z(:,1:3), 'LineWidth', 1.5);
             legend(ax(1), {'$x_1$', '$x_2$', '$x_3$'},... 
-                'Interpreter', 'LaTeX', 'FontSize', 10, 'Location', 'best');
+                'Interpreter', 'LaTeX', 'FontSize', 9, 'Location', 'best');
             title(ax(1), '$\bf Position / Time$','Interpreter','LaTeX','FontSize',10);
 %             xlabel(ax(1), 't','Interpreter','LaTeX','FontSize',14);
 
             plot(ax(3), t, z(:,4:6), 'LineWidth', 1.5);
             legend(ax(3), {'$\phi$', '$\theta$', '$\psi$'},...
-                'Interpreter', 'LaTeX', 'FontSize', 10, 'Location', 'best');
+                'Interpreter', 'LaTeX', 'FontSize', 9, 'Location', 'best');
             title(ax(3), '$\bf Rotation / Time$','Interpreter','LaTeX','FontSize',10);
 
             plot(ax(2), t, z(:,7:9), 'LineWidth', 1.5);
             legend(ax(2), {'$\dot{x}_1$', '$\dot{x}_2$', '$\dot{x}_3$'},...
-                'Interpreter', 'LaTeX', 'FontSize', 10, 'Location', 'best');
+                'Interpreter', 'LaTeX', 'FontSize', 9, 'Location', 'best');
             title(ax(2), '$\bf Velocity / Time$','Interpreter','LaTeX','FontSize',10);
 
             plot(ax(4), t, z(:,10:12), 'LineWidth', 1.5);
             legend(ax(4), {'$\omega_1$', '$\omega_2$', '$\omega_3$'},...
-                'Interpreter', 'LaTeX', 'FontSize', 10, 'Location', 'best');
+                'Interpreter', 'LaTeX', 'FontSize', 9, 'Location', 'best');
             title(ax(4), '$\bf Angular Velocity / Time$','Interpreter','LaTeX','FontSize',10);
         end
         
@@ -82,7 +82,7 @@ classdef QuadrotorClass
             end
             bodyPos = [ctr([1 3],1), NaN, ctr([2 4],1);
                        ctr([1 3],2), NaN, ctr([2 4],2);
-                       ctr([1 3],3), NaN, ctr([2 4],3)];
+                       ctr([1 3],3), NaN, ctr([2 4],3)]
         end
         
         function R = quadrotorRotation(this, a1, a2, a3)
