@@ -19,7 +19,7 @@ rng(1)
 % Maximum norm of r  = 2N
 % Maximum value for r for each axis is sqrt(4/3)
 % r = rand(3,1)*sqrt(4/3);
-r = [.1; .1; .1];
+% r = [.1; .1; .1];
 % r = [sqrt(4/3); sqrt(4/3); sqrt(4/3)];
 
 % r disturbance over time
@@ -28,7 +28,8 @@ r_range = -1*r_max + (r_max+r_max)*rand(3,200*2);
 % r_range = rand(3,200*2)*sqrt(4/3);
 % r_range = zeros(3,200*2);
 % r = @(i) r_range(3,(round(i/.5)*5)+1); % Every half second
-r = @(i) r_range(3,(round(i))+1); % Every second
+r = @(i) r_range(3,(round(i+.5))+1); % Every second
+% r = @(i) r_range(3,(round(i)*2)+2); % Every 2 seconds
 % r = @(i) r_range(3,(round(i,1)*10)+1); % Every .1 second
 
 % External Moment Vector
@@ -36,14 +37,15 @@ r = @(i) r_range(3,(round(i))+1); % Every second
 % Maximum norm of n  = 1Nm
 % Maximum value for r for each axis is sqrt(1/3)
 % n = rand(3,1);
-n = [.1; .1; .1];
+% n = [.1; .1; .1];
 % n = [1; 1; 1];
 
 n_range = -1 + (1+1)*rand(3,200*2);
 % n_range = rand(3,200*2);
 % n_range = zeros(3,200*2);
 % n = @(i) n_range(3,(round(i/.5)*5)+1); % Every half second
-n = @(i) n_range(3,(round(i))+1); % Every second
+n = @(i) n_range(3,(round(i+.5))+1); % Every second
+% n = @(i) n_range(3,(round(i)*2)+2); % Every 2 second
 % n = @(i) n_range(3,(round(i,1)*10)+1); % Every .1 second
 
 u0 = [1; 0.9; 1.9; 1.5]; % rotor/motor inputs (?)
@@ -145,8 +147,24 @@ B = [0,                0,                 0,                0;
 
 % Experiment Data
 QD = [
-100,100,100,  1,1,1,  1,1,1,  1,1,1
+    20,20,20,  100,100,100,  100,100,100,  500,500,500
 ];
+QD2 = [
+    20,20,20,  100,100,100,  50,50,50,  100,100,100
+    ];
+rmtx =  [ 10, 1, 5, 100 ];
+rmtx2 = [ 1, 1, 10, 100 ];
+
+% Capture values
+% QD = [
+%     100,100,100,  1,1,1,  20,20,20,  5,5,5
+%     ];
+% QD2 = [
+%     100,100,100,  1,1,1,  20,20,20,  5,5,5
+%     ];
+% rmtx = [ 120, 120, 1, 1 ];
+% rmtx2 = [ 120, 120, 1, 1 ];
+
 Q = [QD(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 QD(2) 0 0 0 0 0 0 0 0 0 0;    % y error
     0 0 QD(3) 0 0 0 0 0 0 0 0 0;    % z error
@@ -159,9 +177,7 @@ Q = [QD(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 0 0 0 0 0 0 0 0 QD(10) 0 0;    % rate of rotation (theta 1) error
     0 0 0 0 0 0 0 0 0 0 QD(11) 0;    % rate of rotation (theta 2) error
     0 0 0 0 0 0 0 0 0 0 0 QD(12)];   % rate of rotation (theta 3) error
-QD2 = [
-100,100,100,  1,1,1,  80,80,80,  1,1,1
-];
+
 Q2 = [QD2(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 QD2(2) 0 0 0 0 0 0 0 0 0 0;    % y error
     0 0 QD2(3) 0 0 0 0 0 0 0 0 0;    % z error
@@ -174,8 +190,7 @@ Q2 = [QD2(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
     0 0 0 0 0 0 0 0 0 QD2(10) 0 0;    % rate of rotation (theta 1) error
     0 0 0 0 0 0 0 0 0 0 QD2(11) 0;    % rate of rotation (theta 2) error
     0 0 0 0 0 0 0 0 0 0 0 QD2(12)];   % rate of rotation (theta 3) error
-% Q = eye(12);
-% Q2 = eye(12);
+
 % tuning actuator cost (judged by input gains; affects acceleration allowed or energy expended for maneuver)
 % R = [1 0 0 0;       % x dot
 %     0 1 0 0;        % alpha dot
@@ -187,8 +202,9 @@ Q2 = [QD2(1) 0 0 0 0 0 0 0 0 0 0 0;   % x error
 %      0 0 1 0;        % v dot
 %      0 0 0 10];       % omega dot
 % R = eye(4);
-rmtx = [ 100, 100, 1, 1 ];
-rmtx2 = [ 100, 100, 1, 1 ];
+% rmtx =  [ 10, 1, 10, 1 ];
+% rmtx2 = [ 10, 1, 10, 1 ];
+
 R = [rmtx(1) 0 0 0;       % x dot
     0 rmtx(2) 0 0;        % alpha dot
     0 0 rmtx(3) 0;        % v dot
@@ -197,6 +213,11 @@ R2 = [rmtx2(1) 0 0 0;       % x dot
       0 rmtx2(2) 0 0;        % alpha dot
       0 0 rmtx2(3) 0;        % v dot
       0 0 0 rmtx2(4)];       % omega dot
+% Q = eye(12);
+% Q2 = eye(12);
+% R = eye(4);
+% R2 = eye(4);
+
 K = lqr(A,B,Q,R);
 K2 = lqr(A,B,Q2,R2);
 
@@ -210,7 +231,7 @@ u0  = ones(4,1)*qr.m*qr.g/4;
 
 
 % State values for landing back at nest
-z_hover = [0;0;1; 0;0;0; 0;0;0; 0;0;0]; % hover point above the nest
+z_hover = [0;0;2; 0;0;0; 0;0;0; 0;0;0]; % hover point above the nest
 z_nest = [0;0;0; 0;0;0; 0;0;0; 0;0;0]; % position and state for nest
 
 u1=@(t,z) K*(z_hover - z) + u0;
@@ -375,4 +396,5 @@ legend(path, 'Defender')
 
 fprintf("Time Landed: %.3f\n", t(end));
 fprintf("Error %.3f, %.3f, %.3f\n",  [z(end,1), z(end,2), z(end,3)])
+fprintf("Velocity %.3f, %.3f, %.3f\n",  [z(end,7), z(end,8), z(end,9)])
 fprintf("Hover K %i\n", hoverK)
