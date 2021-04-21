@@ -37,7 +37,7 @@ classdef QuadrotorClass
         
         % Graph of x, xdot, alpha, and omega
         function plotResults(this, t, z)
-            yaxis_labels = {'x', '$\alpha$', '$\dot{x}$', '$\omega$'};
+            yaxis_labels = {'x', '$\dot{x}$', '$\alpha$', '$\omega$'};
             
             for i=1:4
                 ax(i) = subplot(2,2,i,'NextPlot','Add','Box','on','XGrid','on','YGrid','on',...
