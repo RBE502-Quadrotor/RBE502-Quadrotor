@@ -147,13 +147,13 @@ B = [0,                0,                 0,                0;
 
 % Experiment Data
 QD = [
-    20,20,20,  100,100,100,  100,100,100,  500,500,500
+    10,10,10,  100,100,100,  50,50,50,  500,500,500
 ];
 QD2 = [
-    20,20,20,  100,100,100,  50,50,50,  100,100,100
+    200,200,200,  100,100,100,  1,1,1,  500,500,500
     ];
-rmtx =  [ 10, 1, 5, 100 ];
-rmtx2 = [ 1, 1, 10, 100 ];
+rmtx =  [ 1, 1, 10, 100 ];
+rmtx2 = [ 10, 1, 10, 100 ];
 
 % Capture values
 % QD = [
@@ -242,7 +242,8 @@ u2=@(t,z) K2*(z_nest - z) + u0;
 % Check if reached hover position
 hoverK = 0;
 for k=1:length(t)
-    if tolerance(z1(k,:)',z_hover,qr.l) == 1
+    % Use 1m tolerance
+    if tolerance(z1(k,:)',z_hover,5*qr.l) == 1
         hoverK = k;
         break
     end
